@@ -1,0 +1,17 @@
+version: '3.5'
+services:
+
+  dbpostgres:
+    image: postgres:15-alpine
+    networks:
+      - yaga-talk
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: yaga-talk
+
+networks:
+  yaga-talk:
+    name: yaga-talk
