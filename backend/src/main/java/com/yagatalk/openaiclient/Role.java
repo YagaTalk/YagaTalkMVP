@@ -1,4 +1,4 @@
-package com.yagatalk.yagatalk.openaiclient.model;
+package com.yagatalk.openaiclient;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

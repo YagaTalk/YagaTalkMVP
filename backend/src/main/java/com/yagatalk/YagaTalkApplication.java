@@ -1,4 +1,4 @@
-package com.yagatalk.yagatalk;
+package com.yagatalk;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
