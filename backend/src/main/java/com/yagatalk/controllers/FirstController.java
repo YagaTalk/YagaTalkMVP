@@ -1,4 +1,4 @@
-package com.yagatalk.yagatalk.controllers;
+package com.yagatalk.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class FirstController {
 
     @GetMapping("/health")
-    public ResponseEntity getHealth(){
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    public ResponseEntity<Void> getHealth() {
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

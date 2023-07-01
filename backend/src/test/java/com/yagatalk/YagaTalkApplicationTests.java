@@ -1,4 +1,4 @@
-package com.yagatalk.yagatalk;
+package com.yagatalk;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
