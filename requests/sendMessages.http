@@ -1,6 +1,0 @@
-POST http://localhost:8082/api/chat/sessions/38ec9db4-a797-4f9b-b756-17afa59605e7/messages
-Content-Type: application/json
-
-{
-     "text":"Привет, ну че как там с деньгами?!"
-}

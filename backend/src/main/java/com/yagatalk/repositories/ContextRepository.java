@@ -16,13 +16,8 @@ public class ContextRepository {
 
     public String getContent(UUID contextId) {
 
-        return jdbcTemplate.query("SELECT content FROM context WHERE id =?",
-                        (resultSet, rowNum) -> resultSet.getString("content"),
-                        contextId)
-                .stream()
-                .findAny()
-                .orElse(null);
+        return jdbcTemplate.queryForObject("SELECT content FROM context WHERE id =?",
+                (resultSet, rowNum) -> resultSet.getString("content"),
+                contextId);
     }
-
-
 }

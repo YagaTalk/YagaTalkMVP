@@ -3,12 +3,8 @@ package com.yagatalk.domain;
 import java.util.UUID;
 
 public class Context {
-    private UUID id;
-    private String content;
-
-    public Context() {
-    }
-
+    private final UUID id;
+    private final String content;
     public Context(UUID id, String content) {
         this.id = id;
         this.content = content;
@@ -18,16 +14,8 @@ public class Context {
         return id;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
     public String getContent() {
         return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 }
 

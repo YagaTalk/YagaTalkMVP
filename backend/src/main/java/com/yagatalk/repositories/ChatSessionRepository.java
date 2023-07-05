@@ -15,10 +15,8 @@ public class ChatSessionRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void save(UUID id, UUID contextId) {
-        jdbcTemplate.update("INSERT INTO chat_session values (?,?)",
-                id, contextId);
+    public void save(UUID contextId) {
+        jdbcTemplate.update("INSERT INTO chat_session values ('38ec9db4-a797-4f9b-b756-17afa59605e7',?)",
+                contextId);
     }
-
-
 }

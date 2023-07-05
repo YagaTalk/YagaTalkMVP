@@ -2,27 +2,25 @@ package com.yagatalk.domain;
 
 import com.yagatalk.openaiclient.Role;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+
 import java.util.UUID;
 
 public class Message {
+    private final UUID id;
+    private final UUID chatSessionId;
+    private final Role role;
+    private final Instant createdTime;
+    private final String content;
 
-    private UUID id;
-    private UUID chatSessionId;
-    private Role role;
-
-    private LocalDateTime createdTime;
-    private String content;
-
-    public Message() {
-
-    }
-
-    public Message(UUID id, UUID chatSessionId, Role role, LocalDateTime createdTime, String content) {
+    public Message(UUID id, UUID chatSessionId, Role role, Instant createdTime, String content) {
         this.id = id;
         this.chatSessionId = chatSessionId;
         this.role = role;
         this.createdTime = createdTime;
+        if (content == null || content.isEmpty()) {
+            throw new IllegalArgumentException("Content cannot be empty");
+        }
         this.content = content;
     }
 
@@ -30,40 +28,20 @@ public class Message {
         return id;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
     public UUID getChatSessionId() {
         return chatSessionId;
     }
 
-    public void setChatSessionId(UUID chatSessionId) {
-        this.chatSessionId = chatSessionId;
+    public Instant getCreatedTime() {
+        return createdTime;
     }
 
     public Role getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public LocalDateTime getCreatedTime() {
-        return createdTime;
-    }
-
-    public void setCreatedTime(LocalDateTime createdTime) {
-        this.createdTime = createdTime;
-    }
-
     public String getContent() {
         return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 }
 

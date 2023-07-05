@@ -1,6 +1,0 @@
-POST http://localhost:8082/api/chat/sessions
-Content-Type: application/json
-
-{
-     "contextId":"a1e7e851-505b-4b62-b4de-5a56d46ee843"
-}
