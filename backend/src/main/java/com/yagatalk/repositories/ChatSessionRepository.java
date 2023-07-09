@@ -1,5 +1,6 @@
 package com.yagatalk.repositories;
 
+import com.yagatalk.domain.ChatSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -15,8 +16,8 @@ public class ChatSessionRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void save(UUID contextId) {
+    public void save(ChatSession session) {
         jdbcTemplate.update("INSERT INTO chat_session values ('38ec9db4-a797-4f9b-b756-17afa59605e7',?)",
-                contextId);
+                session.getContextId());
     }
 }

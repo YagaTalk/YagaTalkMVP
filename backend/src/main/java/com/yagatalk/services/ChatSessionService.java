@@ -1,5 +1,6 @@
 package com.yagatalk.services;
 
+import com.yagatalk.domain.ChatSession;
 import com.yagatalk.domain.Message;
 import com.yagatalk.openaiclient.OpenAiClient;
 import com.yagatalk.openaiclient.OpenAiMessage;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ChatSessionService {
@@ -21,7 +22,6 @@ public class ChatSessionService {
     private final OpenAiClient openAiClient;
 
     private final ContextRepository contextRepository;
-
     public ChatSessionService(ChatSessionRepository chatSessionRepository, MessageRepository messageRepository, OpenAiClient openAiClient, ContextRepository contextRepository) {
         this.chatSessionRepository = chatSessionRepository;
         this.messageRepository = messageRepository;
@@ -29,22 +29,21 @@ public class ChatSessionService {
         this.contextRepository = contextRepository;
     }
 
-    public void createChatSession(UUID contextId) {
-
-        chatSessionRepository.save(contextId);
+    public UUID createChatSession(UUID contextId) {
+        var session = new ChatSession(UUID.fromString("38ec9db4-a797-4f9b-b756-17afa59605e7"), contextId);
+        chatSessionRepository.save(session);
         createSystemMessage(contextId);
-
+        return session.getId();
     }
 
-    public List<Message> getAllMessagesByChatSessionId(UUID chatSessionId, Optional<Long> ms) {
-        if (ms.isEmpty()){
-            return messageRepository.getAllMessagesByChatSessionId(chatSessionId);
-        }
-        return getAllMessagesByChatSessionIdAfterMs(chatSessionId,ms.get());
+    public Stream<Message> getAllMessagesByChatSessionId(UUID chatSessionId, Optional<Long> ms) {
+        return ms
+                .map(afterMs -> getAllMessagesByChatSessionIdAfterMs(chatSessionId, afterMs))
+                .orElseGet(() -> messageRepository.getAllMessagesByChatSessionId(chatSessionId));
     }
 
-    public List<Message> getAllMessagesByChatSessionIdAfterMs(UUID chatSessionId,long ms) {
-        return messageRepository.getAllMessagesByChatSessionIdAfterMs(chatSessionId,ms);
+    public Stream<Message> getAllMessagesByChatSessionIdAfterMs(UUID chatSessionId, long ms) {
+        return messageRepository.getAllMessagesByChatSessionIdAfterMs(chatSessionId, ms);
     }
 
     public void createUserMessage(String text, UUID chatSessionId) {
@@ -70,7 +69,6 @@ public class ChatSessionService {
     public void createAssistantMessage(UUID chatSessionId) {
 
         List<OpenAiMessage> messages = messageRepository.getAllMessagesByChatSessionId(chatSessionId)
-                .stream()
                 .map(this::convertToOpenAiMessage)
                 .toList();
 

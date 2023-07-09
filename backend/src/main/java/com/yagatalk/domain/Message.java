@@ -1,6 +1,7 @@
 package com.yagatalk.domain;
 
 import com.yagatalk.openaiclient.Role;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 
@@ -18,7 +19,7 @@ public class Message {
         this.chatSessionId = chatSessionId;
         this.role = role;
         this.createdTime = createdTime;
-        if (content == null || content.isEmpty()) {
+        if (StringUtils.isBlank(content)) {
             throw new IllegalArgumentException("Content cannot be empty");
         }
         this.content = content;

@@ -24,9 +24,9 @@ public class SessionController {
     }
 
     @PostMapping
-    public ResponseEntity<HttpStatus> createChatSession(@RequestBody ChatSessionDTO chatSessionDto) {
-        chatSessionService.createChatSession(chatSessionDto.contextId());
-        return ResponseEntity.ok(HttpStatus.CREATED);
+    public ResponseEntity<String> createChatSession(@RequestBody ChatSessionDTO chatSessionDto) {
+       var id = chatSessionService.createChatSession(chatSessionDto.contextId());
+        return ResponseEntity.status(201).body("{ \"id\":\""+ id +  "\"}");
     }
 
     private static record ChatSessionDTO(UUID contextId) {
@@ -34,10 +34,10 @@ public class SessionController {
 
 
     @PostMapping("/{chatSessionId}/messages")
-    public ResponseEntity<HttpStatus> sendMessage(@PathVariable("chatSessionId") UUID chatSessionId,
+    public ResponseEntity<String> sendMessage(@PathVariable("chatSessionId") UUID chatSessionId,
                                                   @RequestBody MessageFromUserDTO message) {
         chatSessionService.createUserMessage(message.text(), chatSessionId);
-        return ResponseEntity.ok(HttpStatus.CREATED);
+        return ResponseEntity.status(201).body("{ ok }");
     }
 
     private record MessageFromUserDTO(String text) {
@@ -46,16 +46,9 @@ public class SessionController {
 
     @GetMapping("/{chatSessionId}/messages")
     public List<MessageDTO> getAllMessages(@PathVariable("chatSessionId") UUID chatSessionId,
-                                           @RequestParam(value = "createdAfterMs", required = false) Optional<Long> ms,
-                                           @RequestParam(value = "isUser",required = false)Optional <Boolean> isUser) {
-        if (isUser.isEmpty()){
-            return chatSessionService.getAllMessagesByChatSessionId(chatSessionId,ms)
-                    .stream()
-                    .map(this::convertToMessageDTO)
-                    .toList();
-        }
+                                           @RequestParam(value = "createdAfterMs", required = false) Optional<Long> ms) {
+
      return chatSessionService.getAllMessagesByChatSessionId(chatSessionId, ms)
-                .stream()
                 .filter(message -> !message.getRole().equals(Role.SYSTEM))
                 .map(this::convertToMessageDTO)
                 .toList();
@@ -67,17 +60,5 @@ public class SessionController {
     }
 
     private record MessageDTO(Role role, long created_at_ms, String content) {
-    }
-
-    @ExceptionHandler
-    private ResponseEntity<ErrorResponse> handleException(InvalidRequestException e) {
-        ErrorResponse response = new ErrorResponse(e.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler
-    private ResponseEntity<ErrorResponse> handleException(Exception e) {
-        ErrorResponse response = new ErrorResponse("Internal server error");
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
