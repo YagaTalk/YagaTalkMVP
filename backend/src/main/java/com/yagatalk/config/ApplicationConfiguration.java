@@ -41,20 +41,10 @@ public class ApplicationConfiguration {
                     .getActualTypeArguments()[0];
             if (type instanceof Class<?>) {
                 Class<?> taskType = (Class<?>) type;
-                if (GetAssistantResponseTask.class.isAssignableFrom(taskType)) {
-                    myPersistentQueue.registerHandler(taskType, handler);
-                }
+                myPersistentQueue.registerHandler(taskType, handler);
             }
         });
 
-
-
-
-
-
-
-//        MyPersistentQueue myPersistentQueue = new MyPersistentQueue(taskQueueRepository);
-//        myPersistentQueue.registerHandler(GetAssistantResponseTask.class,getAssistantResponseTaskHandler);
         return myPersistentQueue;
     }
 
