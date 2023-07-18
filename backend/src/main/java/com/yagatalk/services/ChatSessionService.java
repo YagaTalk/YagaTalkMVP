@@ -2,12 +2,10 @@ package com.yagatalk.services;
 
 import com.yagatalk.domain.ChatSession;
 import com.yagatalk.domain.Message;
-import com.yagatalk.openaiclient.OpenAiClient;
-import com.yagatalk.openaiclient.OpenAiMessage;
 import com.yagatalk.openaiclient.Role;
-import com.yagatalk.repositories.ChatSessionRepository;
-import com.yagatalk.repositories.ContextRepository;
-import com.yagatalk.repositories.MessageRepository;
+import com.yagatalk.persisntentqueue.GetAssistantResponseTask;
+import com.yagatalk.persisntentqueue.interfaces.IPersistentQueue;
+import com.yagatalk.repositories.*;
 import com.yagatalk.utill.UUIDGenerator;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +17,20 @@ import java.util.stream.Stream;
 public class ChatSessionService {
     private final ChatSessionRepository chatSessionRepository;
     private final MessageRepository messageRepository;
-    private final OpenAiClient openAiClient;
+
+    private final IPersistentQueue myPersistentQueue;
 
     private final ContextRepository contextRepository;
-    public ChatSessionService(ChatSessionRepository chatSessionRepository, MessageRepository messageRepository, OpenAiClient openAiClient, ContextRepository contextRepository) {
+
+    public ChatSessionService(ChatSessionRepository chatSessionRepository,
+                              MessageRepository messageRepository,
+                              IPersistentQueue myPersistentQueue,
+                              ContextRepository contextRepository) {
         this.chatSessionRepository = chatSessionRepository;
         this.messageRepository = messageRepository;
-        this.openAiClient = openAiClient;
+        this.myPersistentQueue = myPersistentQueue;
         this.contextRepository = contextRepository;
+
     }
 
     public UUID createChatSession(UUID contextId) {
@@ -44,6 +48,10 @@ public class ChatSessionService {
 
     public Stream<Message> getAllMessagesByChatSessionIdAfterMs(UUID chatSessionId, long ms) {
         return messageRepository.getAllMessagesByChatSessionIdAfterMs(chatSessionId, ms);
+    }
+
+    public Message getLastMessageByChatSessionId(UUID chatSessionId) {
+        return messageRepository.getLastMessage(chatSessionId);
     }
 
     public void createUserMessage(String text, UUID chatSessionId) {
@@ -67,21 +75,6 @@ public class ChatSessionService {
     }
 
     public void createAssistantMessage(UUID chatSessionId) {
-
-        List<OpenAiMessage> messages = messageRepository.getAllMessagesByChatSessionId(chatSessionId)
-                .map(this::convertToOpenAiMessage)
-                .toList();
-
-        String text = openAiClient.getAssistantResponse(messages).message().content();
-        Message message = new Message(UUIDGenerator.generateUUID(),
-                chatSessionId,
-                Role.ASSISTANT,
-                Instant.now(),
-                text);
-        messageRepository.save(message);
-    }
-
-    private OpenAiMessage convertToOpenAiMessage(Message message) {
-        return new OpenAiMessage(message.getRole(), message.getContent());
+        myPersistentQueue.submit(new GetAssistantResponseTask(chatSessionId));
     }
 }

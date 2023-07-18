@@ -21,16 +21,29 @@ public class MessageRepository {
     }
 
     public Stream<Message> getAllMessagesByChatSessionId(UUID chatSessionId) {
-
-        return jdbcTemplate.queryForStream("SELECT * FROM message where chat_session_id=?",
+        return jdbcTemplate.queryForStream("SELECT * FROM message where chat_session_id=? ORDER BY created_time",
                 extractMessage,
                 chatSessionId);
     }
 
     public Stream<Message> getAllMessagesByChatSessionIdAfterMs(UUID chatSessionId, long ms) {
-        return jdbcTemplate.queryForStream("SELECT * FROM message WHERE chat_session_id = ? AND EXTRACT(EPOCH FROM created_time) * 1000 > ?;",
+
+        return jdbcTemplate.queryForStream("SELECT * FROM message WHERE chat_session_id = ? " +
+                        "AND EXTRACT(EPOCH FROM created_time) * 1000 > ? " +
+                        "ORDER BY created_time;",
                 extractMessage,
                 chatSessionId,ms);
+
+    }
+
+    public Message getLastMessage(UUID chatSessionId) {
+        return jdbcTemplate.queryForObject("SELECT *" +
+                        "FROM message " +
+                        "WHERE chat_session_id = ? " +
+                        "ORDER BY created_time DESC " +
+                        "LIMIT 1;",
+                extractMessage,
+                chatSessionId);
     }
 
     public void save(Message message) {

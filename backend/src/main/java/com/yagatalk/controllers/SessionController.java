@@ -3,10 +3,6 @@ package com.yagatalk.controllers;
 import com.yagatalk.domain.Message;
 import com.yagatalk.openaiclient.Role;
 import com.yagatalk.services.ChatSessionService;
-import com.yagatalk.utill.ErrorResponse;
-import com.yagatalk.utill.InvalidRequestException;
-import org.apache.catalina.connector.Request;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
