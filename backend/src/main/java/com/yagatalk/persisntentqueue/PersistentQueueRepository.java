@@ -1,8 +1,8 @@
 package com.yagatalk.persisntentqueue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yagatalk.persisntentqueue.interfaces.ResponseTask;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -13,42 +13,44 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 @Repository
-public class TaskQueueRepository {
+public
+class PersistentQueueRepository {
     private final JdbcTemplate jdbcTemplate;
 
-    public TaskQueueRepository(JdbcTemplate jdbcTemplate) {
+    public PersistentQueueRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void save(TaskQueue taskQueue) {
+    public void save(Task task) {
 
         jdbcTemplate.update("INSERT INTO task_queue values (?,?,?::jsonb,?,?)",
-                taskQueue.getId(),
-                taskQueue.getTaskType().toString(),
-                taskToJson(taskQueue.getTask()),
-                taskQueue.getState().toString(),
-                Timestamp.from(taskQueue.getSubmittedAt()));
+                task.getId(),
+                task.getTaskType(),
+                task.getTaskObject((taskType, payload) -> jsonToString(payload)),
+                task.getState().toString(),
+                Timestamp.from(task.getSubmittedAt()));
     }
 
-    private String taskToJson(ResponseTask task) {
+
+    private String jsonToString(JsonNode task) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             return objectMapper.writeValueAsString(task);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("failed to convert json to String", e);
         }
     }
 
-    public void delete(TaskQueue taskQueue) {
-        jdbcTemplate.update("DELETE FROM task_queue WHERE id = ?", taskQueue.getId());
+    public void delete(Task task) {
+        jdbcTemplate.update("DELETE FROM task_queue WHERE id = ?", task.getId());
     }
 
-    public Stream<TaskQueue> getAllTasks() {
+    public Stream<Task> getAllTasks() {
         return jdbcTemplate.queryForStream("SELECT * FROM task_queue",
                 extractTaskQueue);
     }
 
-    public Stream<TaskQueue> getAllTasksByState(State state) {
+    public Stream<Task> getAllTasksByState(State state) {
         return jdbcTemplate.queryForStream("SELECT * FROM task_queue WHERE state = ?",
                 extractTaskQueue,
                 state.toString());
@@ -62,21 +64,21 @@ public class TaskQueueRepository {
         jdbcTemplate.update("UPDATE task_queue set state=? where id=?", state.toString(), id);
     }
 
-    private static final RowMapper<TaskQueue> extractTaskQueue =
-            (rs, rn) -> new TaskQueue(UUID.fromString(
+    private static final RowMapper<Task> extractTaskQueue =
+            (rs, rn) -> new Task(UUID.fromString(
                     rs.getString("id")),
-                    TaskType.valueOf(rs.getString("task_type")),
-                    jsonToTask(rs.getString("task")),
+                    rs.getString("task_type"),
+                    stringToJson(rs.getString("task")),
                     State.valueOf(rs.getString("state")),
                     rs.getTimestamp("submitted_at").toInstant()
             );
 
-    private static ResponseTask jsonToTask(String taskJson) {
+    private static JsonNode stringToJson(String taskJson) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            return objectMapper.readValue(taskJson, GetAssistantResponseTask.class);
+            return objectMapper.readTree(taskJson);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("failed to convert string to Json", e);
         }
     }
 }

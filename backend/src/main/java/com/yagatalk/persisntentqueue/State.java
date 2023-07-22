@@ -1,6 +1,6 @@
 package com.yagatalk.persisntentqueue;
 
-public enum State {
+ enum State {
     PENDING,
     RUNNING,
     FINISHED

@@ -1,30 +1,30 @@
 package com.yagatalk.persisntentqueue;
 
-import com.yagatalk.persisntentqueue.interfaces.ResponseTask;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.yagatalk.utill.UUIDGenerator;
 
 import java.time.Instant;
 import java.util.UUID;
 
-public class TaskQueue {
+class Task {
     private final UUID id;
-    private final TaskType taskType;
-    private final ResponseTask task;
+    private final String taskType;
+    private final JsonNode payload;
     private final State state;
     private final Instant submittedAt;
 
-    public TaskQueue(UUID id, TaskType taskType, ResponseTask task, State state, Instant submittedAt) {
+    public Task(UUID id, String taskType, JsonNode payload, State state, Instant submittedAt) {
         this.id = id;
         this.taskType = taskType;
-        this.task = task;
+        this.payload = payload;
         this.state = state;
         this.submittedAt = submittedAt;
     }
 
-    public TaskQueue(ResponseTask task) {
+    public Task(String taskType, JsonNode payload) {
         this.id = UUIDGenerator.generateUUID();
-        this.taskType = TaskType.GET_ASSISTANT_RESPONSE_TASK;
-        this.task = task;
+        this.taskType = taskType;
+        this.payload = payload;
         this.state = State.PENDING;
         this.submittedAt = Instant.now();
 
@@ -34,12 +34,18 @@ public class TaskQueue {
         return id;
     }
 
-    public TaskType getTaskType() {
+    public String getTaskType() {
         return taskType;
     }
 
-    public ResponseTask getTask() {
-        return task;
+    public Object getTaskObject(ObjectDeserializer deserializer) {
+
+        return deserializer.deserialize(this.taskType, this.payload);
+    }
+
+    @FunctionalInterface
+    interface ObjectDeserializer {
+        Object deserialize(String taskType, JsonNode payload);
     }
 
     public State getState() {
