@@ -38,7 +38,6 @@ public class GetAssistantResponseTaskHandler extends DefaultTaskHandler<GetAssis
                 .map(this::convertToOpenAiMessage)
                 .toList();
 
-
         String text = openAiClient.getAssistantResponse(messages).message().content();
         Message message = new Message(UUIDGenerator.generateUUID(),
                 task.chatSessionId(),
