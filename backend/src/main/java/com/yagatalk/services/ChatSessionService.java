@@ -2,38 +2,56 @@ package com.yagatalk.services;
 
 import com.yagatalk.domain.ChatSession;
 import com.yagatalk.domain.Message;
-import com.yagatalk.openaiclient.OpenAiClient;
-import com.yagatalk.openaiclient.OpenAiMessage;
 import com.yagatalk.openaiclient.Role;
-import com.yagatalk.repositories.ChatSessionRepository;
-import com.yagatalk.repositories.ContextRepository;
-import com.yagatalk.repositories.MessageRepository;
+import com.yagatalk.persisntentqueue.IPersistentQueue;
+import com.yagatalk.repositories.*;
 import com.yagatalk.utill.UUIDGenerator;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
 
 @Service
+@Transactional(readOnly = true)
 public class ChatSessionService {
     private final ChatSessionRepository chatSessionRepository;
     private final MessageRepository messageRepository;
-    private final OpenAiClient openAiClient;
+
+    private final IPersistentQueue persistentQueueImpl;
 
     private final ContextRepository contextRepository;
-    public ChatSessionService(ChatSessionRepository chatSessionRepository, MessageRepository messageRepository, OpenAiClient openAiClient, ContextRepository contextRepository) {
+
+    public ChatSessionService(ChatSessionRepository chatSessionRepository,
+                              MessageRepository messageRepository,
+                              IPersistentQueue persistentQueueImpl,
+                              ContextRepository contextRepository) {
         this.chatSessionRepository = chatSessionRepository;
         this.messageRepository = messageRepository;
-        this.openAiClient = openAiClient;
+        this.persistentQueueImpl = persistentQueueImpl;
         this.contextRepository = contextRepository;
+
     }
 
+    @Transactional
     public UUID createChatSession(UUID contextId) {
         var session = new ChatSession(UUID.fromString("38ec9db4-a797-4f9b-b756-17afa59605e7"), contextId);
         chatSessionRepository.save(session);
+
         createSystemMessage(contextId);
         return session.getId();
+    }
+
+    @Transactional
+    public void createSystemMessage(UUID contextId) {
+        String text = contextRepository.getContent(contextId);
+        Message message = new Message(UUIDGenerator.generateUUID(),
+                UUID.fromString("38ec9db4-a797-4f9b-b756-17afa59605e7"),
+                Role.SYSTEM,
+                Instant.now(),
+                text);
+        messageRepository.save(message);
     }
 
     public Stream<Message> getAllMessagesByChatSessionId(UUID chatSessionId, Optional<Long> ms) {
@@ -46,6 +64,11 @@ public class ChatSessionService {
         return messageRepository.getAllMessagesByChatSessionIdAfterMs(chatSessionId, ms);
     }
 
+    public Message getLastMessageByChatSessionId(UUID chatSessionId) {
+        return messageRepository.getLastMessage(chatSessionId);
+    }
+
+    @Transactional
     public void createUserMessage(String text, UUID chatSessionId) {
         Message message = new Message(UUIDGenerator.generateUUID(),
                 chatSessionId,
@@ -53,35 +76,12 @@ public class ChatSessionService {
                 Instant.now(),
                 text);
         messageRepository.save(message);
-        createAssistantMessage(chatSessionId);
+        persistentQueueImpl.submit(new GetAssistantResponseTask(chatSessionId));
     }
 
-    public void createSystemMessage(UUID contextId) {
-        String text = contextRepository.getContent(contextId);
-        Message message = new Message(UUIDGenerator.generateUUID(),
-                UUID.fromString("38ec9db4-a797-4f9b-b756-17afa59605e7"),
-                Role.SYSTEM,
-                Instant.now(),
-                text);
-        messageRepository.save(message);
-    }
 
+    @Transactional
     public void createAssistantMessage(UUID chatSessionId) {
-
-        List<OpenAiMessage> messages = messageRepository.getAllMessagesByChatSessionId(chatSessionId)
-                .map(this::convertToOpenAiMessage)
-                .toList();
-
-        String text = openAiClient.getAssistantResponse(messages).message().content();
-        Message message = new Message(UUIDGenerator.generateUUID(),
-                chatSessionId,
-                Role.ASSISTANT,
-                Instant.now(),
-                text);
-        messageRepository.save(message);
-    }
-
-    private OpenAiMessage convertToOpenAiMessage(Message message) {
-        return new OpenAiMessage(message.getRole(), message.getContent());
+        persistentQueueImpl.submit(new GetAssistantResponseTask(chatSessionId));
     }
 }

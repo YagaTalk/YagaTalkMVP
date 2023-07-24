@@ -8,6 +8,7 @@ class YagaTalkApplicationTests {
 
 	@Test
 	void contextLoads() {
+
 	}
 
 }

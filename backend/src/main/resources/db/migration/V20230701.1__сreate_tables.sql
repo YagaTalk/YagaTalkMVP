@@ -15,3 +15,4 @@ CREATE TABLE message (
     created_time timestamp with time zone not null,
     content varchar not null
 );
+
