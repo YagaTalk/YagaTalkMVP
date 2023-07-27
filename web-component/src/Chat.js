@@ -7,15 +7,22 @@ function Chat() {
     const chatBodyRef = useRef(null);
     const txtInputRef = useRef(null);
     const [messages, setMessages] = useState([]);
+    const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
 
     useEffect(() => {
         getHistory();
-        const intervalId = setInterval(getHistory, 5000);
+        const intervalId = setInterval(getHistory, 1000);
         return () => {
-            // Clean up the interval when the component unmounts
             clearInterval(intervalId);
         };
     }, []);
+
+    useEffect(() => {
+        if (chatBodyRef.current) {
+            const { scrollHeight, clientHeight, scrollTop } = chatBodyRef.current;
+            setShouldScrollToBottom(scrollHeight - clientHeight === scrollTop);
+        }
+    }, [messages]);
 
     const getHistory = async () => {
         try {
@@ -24,7 +31,6 @@ function Chat() {
                 const data = await response.json();
                 const formattedMessages = data.map(({ role, content }) => ({ role, text: content }));
                 setMessages(formattedMessages);
-                setScrollPosition();
             } else {
                 console.error('Failed to fetch messages from the backend.');
             }
@@ -38,9 +44,6 @@ function Chat() {
         addMessage(userInput, "user");
         txtInputRef.current.value = "";
         sendUserMessageToServer(userInput);
-        setTimeout(() => {
-            setScrollPosition();
-        }, 600);
     };
 
     const sendUserMessageToServer = async (userInput) => {
@@ -64,11 +67,12 @@ function Chat() {
         setMessages(prevMessages => [...prevMessages, { role: type, text: txt }]);
     };
 
-    const setScrollPosition = () => {
-        if (chatBodyRef.current) {
+    useEffect(() => {
+        // Set the scroll position to the bottom if shouldScrollToBottom is true
+        if (shouldScrollToBottom && chatBodyRef.current) {
             chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
         }
-    };
+    }, [shouldScrollToBottom]);;
 
     return (
         <div className="container">
