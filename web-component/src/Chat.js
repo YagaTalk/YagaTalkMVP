@@ -72,7 +72,7 @@ function Chat() {
         if (shouldScrollToBottom && chatBodyRef.current) {
             chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
         }
-    }, [shouldScrollToBottom]);;
+    }, [shouldScrollToBottom]);
 
     return (
         <div className="container">

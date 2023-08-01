@@ -1,0 +1,25 @@
+plugins {
+    id 'com.github.node-gradle.node' version '5.0.0'
+}
+
+apply plugin: 'com.github.node-gradle.node'
+apply plugin: 'base'
+
+task appNpmBuild(type: NpmTask) {
+    args = ['run', 'build']
+}
+
+assemble.dependsOn(appNpmBuild)
+
+//plugins {
+//    id "com.github.node-gradle.node" version "3.5.0"
+//}
+//
+//node {
+//    version = '18.17.0'
+//    npmVersion = '9.6.7'
+//}
+//
+//task appNpmBuild(type: NpmTask) {
+//    args = ['run', 'build']
+//}
