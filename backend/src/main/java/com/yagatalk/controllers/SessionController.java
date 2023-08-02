@@ -1,7 +1,5 @@
 package com.yagatalk.controllers;
 
-import com.yagatalk.domain.Message;
-import com.yagatalk.openaiclient.Role;
 import com.yagatalk.services.ChatSessionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,16 +19,33 @@ public class SessionController {
         this.chatSessionService = chatSessionService;
     }
 
+    @PostMapping("/context/create")
+    public ResponseEntity<String> createContext(@RequestBody ContextDTO contextDTO) {
+        var id = chatSessionService.createContext(contextDTO.content);
+        return ResponseEntity.status(201).body(new IdDTO(id).toString());
+    }
+
+    private static record ContextDTO(String content){}
+
     @PostMapping
     public ResponseEntity<String> createChatSession(@RequestBody ChatSessionDTO chatSessionDto) {
        var id = chatSessionService.createChatSession(chatSessionDto.contextId());
-        return ResponseEntity.status(201).body("{ \"id\":\""+ id +  "\"}");
+        return ResponseEntity.status(201).body(new IdDTO(id).toString());
+    }
+
+    private static record IdDTO(UUID id){
+        @Override
+        public String toString() {
+            return "{" +
+                    "\"id=\"" +id + "\"" +
+                    '}';
+        }
     }
 
     private static record ChatSessionDTO(UUID contextId) {
     }
 
-    @CrossOrigin
+
     @PostMapping("/{chatSessionId}/messages")
     public ResponseEntity<String> sendMessage(@PathVariable("chatSessionId") UUID chatSessionId,
                                                   @RequestBody MessageFromUserDTO message) {
@@ -41,22 +56,11 @@ public class SessionController {
     private record MessageFromUserDTO(String text) {
     }
 
-    @CrossOrigin
-    @Transactional
+
     @GetMapping("/{chatSessionId}/messages")
-    public List<MessageDTO> getAllMessages(@PathVariable("chatSessionId") UUID chatSessionId,
-                                           @RequestParam(value = "createdAfterMs", required = false) Optional<Long> ms) {
-     return chatSessionService.getAllMessagesByChatSessionId(chatSessionId, ms)
-                .filter(message -> !message.getRole().equals(Role.SYSTEM))
-                .map(this::convertToMessageDTO)
-                .toList();
+    public List<ChatSessionService.MessageDTO> getAllMessages(@PathVariable("chatSessionId") UUID chatSessionId,
+                                                              @RequestParam(value = "createdAfterMs", required = false) Optional<Long> ms) {
+     return chatSessionService.getAllMessagesByChatSessionId(chatSessionId, ms);
 
-    }
-
-    private MessageDTO convertToMessageDTO(Message message) {
-        return new MessageDTO(message.getRole(), message.getCreatedTime().toEpochMilli(), message.getContent());
-    }
-
-    private record MessageDTO(Role role, long created_at_ms, String content) {
     }
 }

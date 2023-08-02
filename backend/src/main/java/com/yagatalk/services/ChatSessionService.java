@@ -1,6 +1,7 @@
 package com.yagatalk.services;
 
 import com.yagatalk.domain.ChatSession;
+import com.yagatalk.domain.Context;
 import com.yagatalk.domain.Message;
 import com.yagatalk.openaiclient.Role;
 import com.yagatalk.persisntentqueue.IPersistentQueue;
@@ -35,6 +36,14 @@ public class ChatSessionService {
     }
 
     @Transactional
+    public UUID createContext(String content) {
+        var context = new Context(UUID.randomUUID(),content);
+        contextRepository.save(context);
+        return context.getId();
+    }
+
+
+    @Transactional
     public UUID createChatSession(UUID contextId) {
         var session = new ChatSession(UUID.fromString("38ec9db4-a797-4f9b-b756-17afa59605e7"), contextId);
         chatSessionRepository.save(session);
@@ -54,16 +63,27 @@ public class ChatSessionService {
         messageRepository.save(message);
     }
 
-
-    public Stream<Message> getAllMessagesByChatSessionId(UUID chatSessionId, Optional<Long> ms) {
+    @Transactional
+    public List<MessageDTO> getAllMessagesByChatSessionId(UUID chatSessionId, Optional<Long> ms) {
         return ms
                 .map(afterMs -> getAllMessagesByChatSessionIdAfterMs(chatSessionId, afterMs))
-                .orElseGet(() -> messageRepository.getAllMessagesByChatSessionId(chatSessionId));
+                .orElseGet(() -> messageRepository.getAllMessagesByChatSessionId(chatSessionId))
+                .filter(message -> !message.getRole().equals(Role.SYSTEM))
+                .map(this::convertToMessageDTO)
+                .toList();
+    }
+    private MessageDTO convertToMessageDTO(Message message) {
+        return new MessageDTO(message.getRole(), message.getCreatedTime().toEpochMilli(), message.getContent());
+    }
+
+    public record MessageDTO(Role role, long created_at_ms, String content) {
     }
 
     public Stream<Message> getAllMessagesByChatSessionIdAfterMs(UUID chatSessionId, long ms) {
         return messageRepository.getAllMessagesByChatSessionIdAfterMs(chatSessionId, ms);
     }
+
+
 
     public Message getLastMessageByChatSessionId(UUID chatSessionId) {
         return messageRepository.getLastMessage(chatSessionId);
