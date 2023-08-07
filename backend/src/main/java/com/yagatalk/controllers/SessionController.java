@@ -2,7 +2,6 @@ package com.yagatalk.controllers;
 
 import com.yagatalk.services.ChatSessionService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,7 +24,7 @@ public class SessionController {
         return ResponseEntity.status(201).body(new IdDTO(id).toString());
     }
 
-    private static record ContextDTO(String content){}
+    private record ContextDTO(String content){}
 
     @PostMapping
     public ResponseEntity<String> createChatSession(@RequestBody ChatSessionDTO chatSessionDto) {
@@ -33,7 +32,7 @@ public class SessionController {
         return ResponseEntity.status(201).body(new IdDTO(id).toString());
     }
 
-    private static record IdDTO(UUID id){
+    private record IdDTO(UUID id){
         @Override
         public String toString() {
             return "{" +
@@ -42,7 +41,7 @@ public class SessionController {
         }
     }
 
-    private static record ChatSessionDTO(UUID contextId) {
+    public record ChatSessionDTO(UUID contextId) {
     }
 
 
@@ -53,7 +52,7 @@ public class SessionController {
         return ResponseEntity.status(201).body("{ ok }");
     }
 
-    private record MessageFromUserDTO(String text) {
+    public record MessageFromUserDTO(String text) {
     }
 
 

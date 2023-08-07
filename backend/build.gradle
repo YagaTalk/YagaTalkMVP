@@ -26,8 +26,7 @@ dependencies {
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation "org.testcontainers:postgresql:1.18.3"
 	testImplementation "org.testcontainers:junit-jupiter:1.18.3"
-	testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2', ext: 'pom'
-
+	testImplementation "com.github.tomakehurst:wiremock-standalone:3.0.0-beta-8"
 }
 
 task copyWebApp(type: Copy) {
