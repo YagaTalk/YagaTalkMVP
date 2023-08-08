@@ -64,7 +64,7 @@ class SessionControllerTest  extends ContainersEnvironment {
         Assertions.assertEquals("201 CREATED", responseEntity.getStatusCode().toString());
         Assertions.assertEquals("{\"id=\"38ec9db4-a797-4f9b-b756-17afa59605e7\"}", responseEntity.getBody());
     }
-    
+
     @Test
     void sendMessage() throws InterruptedException {
         var responseEntity = sessionController.sendMessage(UUID.fromString("38ec9db4-a797-4f9b-b756-17afa59605e7"),
