@@ -1,5 +1,6 @@
 package com.yagatalk.repositories;
 
+import com.yagatalk.domain.Context;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -12,6 +13,11 @@ public class ContextRepository {
 
     public ContextRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+    }
+
+    public void save(Context context) {
+        jdbcTemplate.update("INSERT INTO context values (?,?)",
+                context.getId(),context.getContent());
     }
 
     public String getContent(UUID contextId) {
