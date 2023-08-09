@@ -16,6 +16,7 @@ repositories {
 }
 
 dependencies {
+	runtimeOnly project(':web-component')
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
@@ -23,14 +24,20 @@ dependencies {
 	runtimeOnly 'org.postgresql:postgresql'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
-//	testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '3.0.0-beta-10'
-//	testImplementation group: 'org.testcontainers', name: 'testcontainers', version: '1.18.3'
 	testImplementation "org.testcontainers:postgresql:1.18.3"
 	testImplementation "org.testcontainers:junit-jupiter:1.18.3"
-
-
+	testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2', ext: 'pom'
 
 }
+
+task copyWebApp(type: Copy) {
+	from "$rootDir\\web-component\\build\\static\\css\\main.css"
+	from "$rootDir\\web-component\\build\\static\\js\\main.js"
+	into "$rootDir\\backend\\build\\resources\\main\\static\\embed"
+}
+
+bootJar.dependsOn(copyWebApp)
+compileJava.dependsOn ":web-component:build"
 
 tasks.named('test') {
 	useJUnitPlatform()

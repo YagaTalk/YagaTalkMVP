@@ -4,11 +4,13 @@ import com.yagatalk.domain.Message;
 import com.yagatalk.openaiclient.Role;
 import com.yagatalk.services.ChatSessionService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/api/chat/sessions")
@@ -28,7 +30,7 @@ public class SessionController {
     private static record ChatSessionDTO(UUID contextId) {
     }
 
-
+    @CrossOrigin
     @PostMapping("/{chatSessionId}/messages")
     public ResponseEntity<String> sendMessage(@PathVariable("chatSessionId") UUID chatSessionId,
                                                   @RequestBody MessageFromUserDTO message) {
@@ -39,11 +41,11 @@ public class SessionController {
     private record MessageFromUserDTO(String text) {
     }
 
-
+    @CrossOrigin
+    @Transactional
     @GetMapping("/{chatSessionId}/messages")
     public List<MessageDTO> getAllMessages(@PathVariable("chatSessionId") UUID chatSessionId,
                                            @RequestParam(value = "createdAfterMs", required = false) Optional<Long> ms) {
-
      return chatSessionService.getAllMessagesByChatSessionId(chatSessionId, ms)
                 .filter(message -> !message.getRole().equals(Role.SYSTEM))
                 .map(this::convertToMessageDTO)
