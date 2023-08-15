@@ -18,13 +18,28 @@ public class SessionController {
         this.chatSessionService = chatSessionService;
     }
 
-    @PostMapping("/context/create")
+    @PostMapping("/context")
     public ResponseEntity<String> createContext(@RequestBody ContextDTO contextDTO) {
-        var id = chatSessionService.createContext(contextDTO.content);
+        var id = chatSessionService.createContext(contextDTO.content,contextDTO.name);
         return ResponseEntity.status(201).body(new IdDTO(id).toString());
     }
 
-    private record ContextDTO(String content){}
+    @GetMapping("/context/{contextId}")
+    public ChatSessionService.ContextDTOWithContent getContext(@PathVariable("contextId") UUID contextId){
+        return chatSessionService.getContext(contextId);
+    }
+
+//    @GetMapping
+//
+    private record ContextDTO(String content,String name){}
+
+    @GetMapping("/contexts")
+    public List<ChatSessionService.ContextDTO> getAllContexts(
+            @RequestParam(value = "asc_sort", required = false) Optional<Boolean> ascSort,
+            @RequestParam(name = "searchNameQuery", required = false) Optional<String> searchNameQuery,
+            @RequestParam(name = "searchDateQuery", required = false) Optional<String> searchDateQuery) {
+        return chatSessionService.getAllContexts(ascSort, searchNameQuery,searchDateQuery);
+    }
 
     @PostMapping
     public ResponseEntity<String> createChatSession(@RequestBody ChatSessionDTO chatSessionDto) {

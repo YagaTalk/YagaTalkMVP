@@ -9,6 +9,7 @@ import com.yagatalk.repositories.*;
 import com.yagatalk.utill.UUIDGenerator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.Instant;
 import java.util.*;
@@ -36,8 +37,8 @@ public class ChatSessionService {
     }
 
     @Transactional
-    public UUID createContext(String content) {
-        var context = new Context(UUID.randomUUID(),content);
+    public UUID createContext(String content, String name) {
+        var context = new Context(UUIDGenerator.generateUUID(), content, Instant.now(), name);
         contextRepository.save(context);
         return context.getId();
     }
@@ -72,8 +73,44 @@ public class ChatSessionService {
                 .map(this::convertToMessageDTO)
                 .toList();
     }
+
     private MessageDTO convertToMessageDTO(Message message) {
         return new MessageDTO(message.getRole(), message.getCreatedTime().toEpochMilli(), message.getContent());
+    }
+
+    public ContextDTOWithContent getContext(UUID contextId){
+        return convertToContextDTOWithContent(contextRepository.get(contextId));
+    }
+
+    public record ContextDTOWithContent(String content,Instant createdTime,String name){}
+
+    private ContextDTOWithContent convertToContextDTOWithContent(Context context) {
+        return new ContextDTOWithContent(context.getContent(),context.getCreatedTime(),context.getName());
+    }
+
+    public List<ContextDTO> getAllContexts(Optional<Boolean> ascSort,
+                                           Optional<String> searchNameQuery,
+                                           Optional<String> searchDateQuery) {
+        if (ascSort.isPresent() && Boolean.TRUE.equals(ascSort.get())){
+            if (searchDateQuery.isPresent() && !searchDateQuery.get().equals("")){
+                return contextRepository.getAllContextsWithSearchByDate("ASC",search(searchNameQuery),searchDateQuery.get()).map(this::convertToContextDTO).toList();
+            }
+            return contextRepository.getAllContexts("ASC",search(searchNameQuery)).map(this::convertToContextDTO).toList();
+        }
+        if (searchDateQuery.isPresent() && !searchDateQuery.get().equals("")){
+            return contextRepository.getAllContextsWithSearchByDate("DESC",search(searchNameQuery),searchDateQuery.get()).map(this::convertToContextDTO).toList();
+        }
+        return contextRepository.getAllContexts("DESC",search(searchNameQuery)).map(this::convertToContextDTO).toList();
+    }
+    private String search(Optional<String> searchQuery){
+        return searchQuery.orElse("");
+    }
+
+    public record ContextDTO(UUID id,String name, Instant createdTime) {
+    }
+
+    private ContextDTO convertToContextDTO(Context context) {
+        return new ContextDTO(context.getId(), context.getName(), context.getCreatedTime());
     }
 
     public record MessageDTO(Role role, long created_at_ms, String content) {
@@ -82,7 +119,6 @@ public class ChatSessionService {
     public Stream<Message> getAllMessagesByChatSessionIdAfterMs(UUID chatSessionId, long ms) {
         return messageRepository.getAllMessagesByChatSessionIdAfterMs(chatSessionId, ms);
     }
-
 
 
     public Message getLastMessageByChatSessionId(UUID chatSessionId) {
@@ -99,7 +135,6 @@ public class ChatSessionService {
         messageRepository.save(message);
         persistentQueueImpl.submit(new GetAssistantResponseTask(chatSessionId));
     }
-
 
     @Transactional
     public void createAssistantMessage(UUID chatSessionId) {
