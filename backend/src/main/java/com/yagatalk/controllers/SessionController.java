@@ -10,7 +10,7 @@ import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/api/chat/sessions")
+@RequestMapping("/api/chat/")
 public class SessionController {
     private final ChatSessionService chatSessionService;
 
@@ -29,8 +29,6 @@ public class SessionController {
         return chatSessionService.getContext(contextId);
     }
 
-//    @GetMapping
-//
     private record ContextDTO(String content,String name){}
 
     @GetMapping("/contexts")
@@ -45,6 +43,11 @@ public class SessionController {
     public ResponseEntity<String> createChatSession(@RequestBody ChatSessionDTO chatSessionDto) {
        var id = chatSessionService.createChatSession(chatSessionDto.contextId());
         return ResponseEntity.status(201).body(new IdDTO(id).toString());
+    }
+
+    @GetMapping("/context/{contextId}/sessions")
+    public List<ChatSessionService.ChatSessionDTO> getChatSession(@PathVariable("contextId") UUID contextID) {
+        return chatSessionService.getAllChatSessionByContextID(contextID);
     }
 
     private record IdDTO(UUID id){

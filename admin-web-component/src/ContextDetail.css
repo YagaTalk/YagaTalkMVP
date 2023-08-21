@@ -1,0 +1,39 @@
+.container {
+    --light-color: #fff;
+    height: 420px;
+    width: 350px;
+    background: var(--light-color);
+    position: fixed;
+    bottom: 50px;
+    right: 10px;
+}
+
+.context-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100vh;
+}
+
+.context-table {
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+}
+
+.action-button {
+    margin-right: 20px;
+}
+
+.modal-content {
+    height: 420px;
+    width: 350px;
+    position: fixed;
+    bottom: 20px;
+    right: 1px;
+    background-color: blue;
+    color: white;
+    padding: 100px;
+    border-radius: 5px;
+}
+

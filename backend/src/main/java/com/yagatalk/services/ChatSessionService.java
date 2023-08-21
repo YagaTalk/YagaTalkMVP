@@ -9,7 +9,6 @@ import com.yagatalk.repositories.*;
 import com.yagatalk.utill.UUIDGenerator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.Instant;
 import java.util.*;
@@ -46,11 +45,22 @@ public class ChatSessionService {
 
     @Transactional
     public UUID createChatSession(UUID contextId) {
-        var session = new ChatSession(UUID.fromString("38ec9db4-a797-4f9b-b756-17afa59605e7"), contextId);
+//        UUID id = UUID.fromString("38ec9db4-a797-4f9b-b756-17afa59605e7");
+        UUID id = UUID.randomUUID();
+        var session = new ChatSession(id, contextId,Instant.now());
         chatSessionRepository.save(session);
 
         createSystemMessage(contextId);
         return session.getId();
+    }
+
+    public List<ChatSessionDTO> getAllChatSessionByContextID(UUID contextID){
+        return chatSessionRepository.getAllSessionsByContextID(contextID).map(this::convertToChatSessionDTO).toList();
+    }
+    public record ChatSessionDTO(UUID id,Instant createdTime){}
+
+    private ChatSessionDTO convertToChatSessionDTO(ChatSession chatSession){
+        return new ChatSessionDTO(chatSession.getId(),chatSession.getCreatedTime());
     }
 
     @Transactional

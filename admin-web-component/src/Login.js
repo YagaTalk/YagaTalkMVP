@@ -6,7 +6,7 @@ function Login() {
     const [password, setPassword] = useState('');
     const navigate  = useNavigate();
     const handleLogin = () => {
-        // Логика обработки входа пользователя
+
         navigate('/menu');
     };
 

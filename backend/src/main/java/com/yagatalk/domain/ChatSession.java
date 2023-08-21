@@ -1,5 +1,6 @@
 package com.yagatalk.domain;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public class ChatSession{
@@ -7,9 +8,11 @@ public class ChatSession{
 
     private final UUID contextId;
 
-    public ChatSession(UUID id, UUID contextId) {
+    private final Instant createdTime;
+    public ChatSession(UUID id, UUID contextId, Instant createdTime) {
         this.id = id;
         this.contextId = contextId;
+        this.createdTime = createdTime;
     }
 
     public UUID getId() {
@@ -19,5 +22,10 @@ public class ChatSession{
     public UUID getContextId() {
         return contextId;
     }
+
+    public Instant getCreatedTime() {
+        return createdTime;
+    }
+
 }
 

@@ -5,7 +5,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from './Login';
 import Menu from './Menu';
 import ContextTable from "./ContextTable";
-import ContextDetail from "./Context";
+import ContextDetail from "./ContextDetail";
+import NewContext from "./NewContext";
+import ChatHistoryTable from "./ChatHistoryTable";
+import EmbeddingInstruction from "./EmbeddingInstruction";
 
 
 const rootElement = document.getElementById("root");
@@ -17,8 +20,11 @@ function App() {
             <Routes>
                 <Route path="/" element={<Login/>}/>
                 <Route path="menu" element={<Menu/>}/>
-                <Route path="/menu/context-table" element={<ContextTable />}/>
-                <Route path="/menu/context/:contextId" element={<ContextDetail  />}/>
+                <Route path="/context/add" element={<NewContext/>}/>
+                <Route path="/context" element={<ContextTable />}/>
+                <Route path="/context/:contextId" element={<ContextDetail  />}/>
+                <Route path="/context/:contextId/chatHistory" element={<ChatHistoryTable/>}/>
+                <Route path="/context/:contextId/instruction" element={<EmbeddingInstruction/>}/>
             </Routes>
         </BrowserRouter>,
         rootElement

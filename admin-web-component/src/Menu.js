@@ -6,7 +6,7 @@ import SettingsWindow from './SettingsWindow.js';
 
 function Menu() {
     const [showSettings, setShowSettings] = useState(false);
-    // Функция для обработки нажатия на иконку настроек
+
     const handleSettingsClick = () => {setShowSettings(!showSettings);};
     return (
         <div className="user-menu-page">
@@ -18,12 +18,12 @@ function Menu() {
             </div>
             <div className="login-page">
                 <div className="button-container">
-                    <Link to="/menu/context-table" className="rectangle">
+                    <Link to="/context/" className="btn btn-primary btn-lg m-2">
                         Show All Context
                     </Link>
-                    <div className="rectangle">
+                    <Link to="/context/add" className="btn btn-primary btn-lg m-2">
                         Add New Context
-                    </div>
+                    </Link>
                 </div>
             </div>
             {showSettings && <SettingsWindow onClose={() => setShowSettings(false)}/>}
