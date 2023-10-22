@@ -1,3 +1,5 @@
+import java.nio.file.Files
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.1.1'
@@ -16,7 +18,6 @@ repositories {
 }
 
 dependencies {
-	runtimeOnly project(':web-component')
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
@@ -29,14 +30,34 @@ dependencies {
 	testImplementation "com.github.tomakehurst:wiremock-standalone:3.0.0-beta-8"
 }
 
-task copyWebApp(type: Copy) {
-	from "$rootDir\\web-component\\build\\static\\css\\main.css"
-	from "$rootDir\\web-component\\build\\static\\js\\main.js"
-	into "$rootDir\\backend\\build\\resources\\main\\static\\embed"
+tasks.register('copyWebComponent', Copy) { task ->
+	from "$rootDir/web-component/build/js"
+	from "$rootDir/web-component/build/css"
+	into "$rootDir/backend/build/resources/main/static/embed"
 }
 
-bootJar.dependsOn(copyWebApp)
-compileJava.dependsOn ":web-component:build"
+tasks.register('copyWebComponentImages', Copy) { task ->
+	from "$rootDir/web-component/build/images"
+	into "$rootDir/backend/build/resources/main/static/images"
+}
+
+tasks.register('copyAdminWebComponent', Copy) { task ->
+	from "$rootDir/admin-web-component/build/js"
+	from "$rootDir/admin-web-component/build/css"
+	into "$rootDir/backend/build/resources/main/static"
+}
+
+tasks.register("copyAdminWebComponentImages", Copy) {
+	from "$rootDir/admin-web-component/build/images"
+	into "$rootDir/backend/build/resources/main/static/images"
+}
+
+classes {
+	dependsOn(copyWebComponent)
+	dependsOn(copyWebComponentImages)
+	dependsOn(copyAdminWebComponent)
+	dependsOn(copyAdminWebComponentImages)
+}
 
 tasks.named('test') {
 	useJUnitPlatform()

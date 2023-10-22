@@ -1,3 +1,18 @@
 GET http://localhost:8082/health
 ###
 GET http://localhost:8082/embed/main.js
+
+###
+GET http://localhost:8082/api/chat/contexts
+
+###
+GET http://localhost:8082/embeddable-chat/asdfasd
+
+###
+GET http://localhost:8082/embeddable-chat/asdfasd
+
+###
+GET http://localhost:8082
+
+###
+GET http://localhost:8082/content/main.js

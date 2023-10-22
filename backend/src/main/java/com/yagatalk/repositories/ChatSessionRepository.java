@@ -1,13 +1,12 @@
 package com.yagatalk.repositories;
 
 import com.yagatalk.domain.ChatSession;
-import com.yagatalk.domain.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.sql.Timestamp;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -21,8 +20,8 @@ public class ChatSessionRepository {
     }
 
     public void save(ChatSession session) {
-        jdbcTemplate.update("INSERT INTO chat_session values (?,?)",
-                session.getId(), session.getContextId(),session.getCreatedTime());
+        jdbcTemplate.update("INSERT INTO chat_session(id, context_id, created_time) values (?, ?, ?)",
+                session.getId(), session.getContextId(), Timestamp.from(session.getCreatedTime()));
     }
 
     public Stream<ChatSession> getAllSessionsByContextID(UUID contextId){

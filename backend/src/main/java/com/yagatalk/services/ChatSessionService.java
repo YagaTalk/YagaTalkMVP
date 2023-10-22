@@ -45,12 +45,11 @@ public class ChatSessionService {
 
     @Transactional
     public UUID createChatSession(UUID contextId) {
-//        UUID id = UUID.fromString("38ec9db4-a797-4f9b-b756-17afa59605e7");
         UUID id = UUID.randomUUID();
         var session = new ChatSession(id, contextId,Instant.now());
         chatSessionRepository.save(session);
 
-        createSystemMessage(contextId);
+        createSystemMessage(contextId, session.getId());
         return session.getId();
     }
 
@@ -64,10 +63,10 @@ public class ChatSessionService {
     }
 
     @Transactional
-    public void createSystemMessage(UUID contextId) {
+    public void createSystemMessage(UUID contextId, UUID sessionId) {
         String text = contextRepository.getContent(contextId);
         Message message = new Message(UUIDGenerator.generateUUID(),
-                UUID.fromString("38ec9db4-a797-4f9b-b756-17afa59605e7"),
+                sessionId,
                 Role.SYSTEM,
                 Instant.now(),
                 text);
@@ -88,8 +87,8 @@ public class ChatSessionService {
         return new MessageDTO(message.getRole(), message.getCreatedTime().toEpochMilli(), message.getContent());
     }
 
-    public ContextDTOWithContent getContext(UUID contextId){
-        return convertToContextDTOWithContent(contextRepository.get(contextId));
+    public Optional<ContextDTOWithContent> getContext(UUID contextId){
+        return contextRepository.get(contextId).map(this::convertToContextDTOWithContent);
     }
 
     public record ContextDTOWithContent(String content,Instant createdTime,String name){}

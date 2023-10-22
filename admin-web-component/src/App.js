@@ -25,6 +25,7 @@ function App() {
                 <Route path="/context/:contextId" element={<ContextDetail  />}/>
                 <Route path="/context/:contextId/chatHistory" element={<ChatHistoryTable/>}/>
                 <Route path="/context/:contextId/instruction" element={<EmbeddingInstruction/>}/>
+                <Route path="*" element={<Login/>}/>
             </Routes>
         </BrowserRouter>,
         rootElement

@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
 import {format} from "date-fns";
 import {Modal} from "react-bootstrap";
+import {BACKEND_URL} from "./Config";
 
 
 function ChatHistoryTable() {
@@ -12,7 +13,7 @@ function ChatHistoryTable() {
 
     useEffect(() => {
         const fetchData = () => {
-            fetch(`http://localhost:8082/api/chat/context/${contextId}/sessions`)
+            fetch(`${BACKEND_URL}/api/chat/context/${contextId}/sessions`)
                 .then(response => response.json())
                 .then(data => setChatSessions(data))
                 .catch(error => console.error('Error fetching contexts:', error));

@@ -25,7 +25,7 @@ public class SessionController {
     }
 
     @GetMapping("/context/{contextId}")
-    public ChatSessionService.ContextDTOWithContent getContext(@PathVariable("contextId") UUID contextId){
+    public Optional<ChatSessionService.ContextDTOWithContent> getContext(@PathVariable("contextId") UUID contextId){
         return chatSessionService.getContext(contextId);
     }
 
@@ -39,10 +39,11 @@ public class SessionController {
         return chatSessionService.getAllContexts(ascSort, searchNameQuery,searchDateQuery);
     }
 
-    @PostMapping
-    public ResponseEntity<String> createChatSession(@RequestBody ChatSessionDTO chatSessionDto) {
-       var id = chatSessionService.createChatSession(chatSessionDto.contextId());
-        return ResponseEntity.status(201).body(new IdDTO(id).toString());
+    @GetMapping("/context/{contextId}/currentSession")
+    public ResponseEntity<IdDTO> getCurrentChatSession(
+            @PathVariable("contextId") UUID contextID) {
+        var id = chatSessionService.createChatSession(contextID);
+        return ResponseEntity.status(201).body(new IdDTO(id));
     }
 
     @GetMapping("/context/{contextId}/sessions")
@@ -63,7 +64,7 @@ public class SessionController {
     }
 
 
-    @PostMapping("/{chatSessionId}/messages")
+    @PostMapping("/sessions/{chatSessionId}/messages")
     public ResponseEntity<String> sendMessage(@PathVariable("chatSessionId") UUID chatSessionId,
                                                   @RequestBody MessageFromUserDTO message) {
         chatSessionService.createUserMessage(message.text(), chatSessionId);
@@ -74,7 +75,7 @@ public class SessionController {
     }
 
 
-    @GetMapping("/{chatSessionId}/messages")
+    @GetMapping("/sessions/{chatSessionId}/messages")
     public List<ChatSessionService.MessageDTO> getAllMessages(@PathVariable("chatSessionId") UUID chatSessionId,
                                                               @RequestParam(value = "createdAfterMs", required = false) Optional<Long> ms) {
      return chatSessionService.getAllMessagesByChatSessionId(chatSessionId, ms);
