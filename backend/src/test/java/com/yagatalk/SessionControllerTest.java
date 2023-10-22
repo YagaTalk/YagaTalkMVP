@@ -65,9 +65,6 @@ class SessionControllerTest  extends ContainersEnvironment {
         Assertions.assertEquals("{\"id=\"38ec9db4-a797-4f9b-b756-17afa59605e7\"}", responseEntity.getBody());
     }
 
-    private static record ChatSessionDTO(UUID contextId) {
-    }
-
     @Test
     void sendMessage() throws InterruptedException {
         var responseEntity = sessionController.sendMessage(UUID.fromString("38ec9db4-a797-4f9b-b756-17afa59605e7"),

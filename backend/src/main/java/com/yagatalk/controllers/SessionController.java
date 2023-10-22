@@ -10,7 +10,7 @@ import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/api/chat/sessions")
+@RequestMapping("/api/chat/")
 public class SessionController {
     private final ChatSessionService chatSessionService;
 
@@ -18,18 +18,36 @@ public class SessionController {
         this.chatSessionService = chatSessionService;
     }
 
-    @PostMapping("/context/create")
+    @PostMapping("/context")
     public ResponseEntity<String> createContext(@RequestBody ContextDTO contextDTO) {
-        var id = chatSessionService.createContext(contextDTO.content);
+        var id = chatSessionService.createContext(contextDTO.content,contextDTO.name);
         return ResponseEntity.status(201).body(new IdDTO(id).toString());
     }
 
-    private record ContextDTO(String content){}
+    @GetMapping("/context/{contextId}")
+    public ChatSessionService.ContextDTOWithContent getContext(@PathVariable("contextId") UUID contextId){
+        return chatSessionService.getContext(contextId);
+    }
+
+    private record ContextDTO(String content,String name){}
+
+    @GetMapping("/contexts")
+    public List<ChatSessionService.ContextDTO> getAllContexts(
+            @RequestParam(value = "asc_sort", required = false) Optional<Boolean> ascSort,
+            @RequestParam(name = "searchNameQuery", required = false) Optional<String> searchNameQuery,
+            @RequestParam(name = "searchDateQuery", required = false) Optional<String> searchDateQuery) {
+        return chatSessionService.getAllContexts(ascSort, searchNameQuery,searchDateQuery);
+    }
 
     @PostMapping
     public ResponseEntity<String> createChatSession(@RequestBody ChatSessionDTO chatSessionDto) {
        var id = chatSessionService.createChatSession(chatSessionDto.contextId());
         return ResponseEntity.status(201).body(new IdDTO(id).toString());
+    }
+
+    @GetMapping("/context/{contextId}/sessions")
+    public List<ChatSessionService.ChatSessionDTO> getChatSession(@PathVariable("contextId") UUID contextID) {
+        return chatSessionService.getAllChatSessionByContextID(contextID);
     }
 
     private record IdDTO(UUID id){
