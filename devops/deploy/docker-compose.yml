@@ -10,7 +10,7 @@ services:
       - keycloak
       - dbpostgres
     ports:
-      - "80:8082"
+      - "8082:8082"
     environment:
       DB_URL: "jdbc:postgresql://dbpostgres:5432/yaga-talk"
       DB_USERNAME: "admin"
@@ -31,7 +31,7 @@ services:
     image: quay.io/keycloak/keycloak:22.0.3
     container_name: keycloak-${ENVIRONMENT_NAME:?}
     ports:
-      - "8080:8080"
+      - "9090:8080"
     environment:
       KEYCLOAK_ADMIN: "${KEYCLOAK_ADMIN_USER:?}"
       KEYCLOAK_ADMIN_PASSWORD: "${KEYCLOAK_ADMIN_PASSWORD:?}"
@@ -41,6 +41,14 @@ services:
       - '--auto-build'
       - '--http-enabled=true'
 
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+    network_mode: "host"
+    volumes:
+      - ./nginx:/etc/nginx
+
   maildev:
     image: docker.io/maildev/maildev:2.1.0
     container_name: maildev-${ENVIRONMENT_NAME:?}
@@ -48,7 +56,7 @@ services:
       - dev
       - stage
     environment:
-      MAILDEV_WEB_PORT: "8080"
+      MAILDEV_WEB_PORT: "9091:8080"
       MAILDEV_SMTP_PORT: "25"
       MAILDEV_INCOMING_USER: me@maildev.local
       MAILDEV_INCOMING_PASS: supersecret
