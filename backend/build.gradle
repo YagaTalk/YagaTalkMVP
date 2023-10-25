@@ -31,32 +31,50 @@ dependencies {
 }
 
 tasks.register('copyWebComponent', Copy) { task ->
-	from "$rootDir/web-component/build/js"
-	from "$rootDir/web-component/build/css"
-	into "$rootDir/backend/build/resources/main/static/embed"
-}
+	into "${sourceSets.main.output.resourcesDir}/static"
 
-tasks.register('copyWebComponentImages', Copy) { task ->
-	from "$rootDir/web-component/build/images"
-	into "$rootDir/backend/build/resources/main/static/images"
+	def webComponentBuildPath = "$rootDir/web-component/build"
+	from("$webComponentBuildPath/js") {
+		include("main.js")
+		rename("main.js", "web-component.js")
+		into("js")
+	}
+
+	from("$webComponentBuildPath/css") {
+		include("main.css")
+		rename("main.css", "web-component.css")
+		into("css")
+	}
+
+	from ("$webComponentBuildPath/images") {
+		into("images")
+	}
 }
 
 tasks.register('copyAdminWebComponent', Copy) { task ->
-	from "$rootDir/admin-web-component/build/js"
-	from "$rootDir/admin-web-component/build/css"
-	into "$rootDir/backend/build/resources/main/static"
-}
+	into "${sourceSets.main.output.resourcesDir}/static"
 
-tasks.register("copyAdminWebComponentImages", Copy) {
-	from "$rootDir/admin-web-component/build/images"
-	into "$rootDir/backend/build/resources/main/static/images"
+	def webComponentBuildPath = "$rootDir/admin-web-component/build"
+	from("$webComponentBuildPath/js") {
+		include("main.js")
+		rename("main.js", "admin-web-component.js")
+		into("js")
+	}
+
+	from("$webComponentBuildPath/css") {
+		include("main.css")
+		rename("main.css", "admin-web-component.css")
+		into("css")
+	}
+
+	from ("$webComponentBuildPath/images") {
+		into("images")
+	}
 }
 
 classes {
 	dependsOn(copyWebComponent)
-	dependsOn(copyWebComponentImages)
 	dependsOn(copyAdminWebComponent)
-	dependsOn(copyAdminWebComponentImages)
 }
 
 tasks.named('test') {

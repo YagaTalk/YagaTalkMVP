@@ -18,32 +18,17 @@ public class UiController {
         this.contextsRepository = contextsRepository;
     }
 
+    @GetMapping("/")
+    public byte[] getAdminUi() {
+        return loadResource("pages/admin-console.html");
+    }
+
     @GetMapping("/embeddable-chat/{contextId}")
     public byte[] getEmbeddableChatComponent(@PathVariable("contextId") UUID contextId) {
         var context = contextsRepository.get(contextId);
         return context
                 .map(c -> loadResource("pages/embeddable-chat-page.html"))
                 .orElseThrow(() -> new InvalidRequestException("context not found"));
-    }
-
-    @GetMapping("/content/{file}")
-    public byte[] getAdminStatic(@PathVariable("file") String file) {
-        return loadResource("static/" + file);
-    }
-
-    @GetMapping("/content/embed/{file}")
-    public byte[] getEmbedAppStatic(@PathVariable("file") String file) {
-        return loadResource("static/embed/" + file);
-    }
-
-    @GetMapping("/images/{file}")
-    public byte[] getImage(@PathVariable("file") String file) {
-        return loadResource("static/images/" + file);
-    }
-
-    @GetMapping("/**")
-    public byte[] getAdminUi() {
-        return loadResource("pages/admin-console.html");
     }
 
     private static byte[] loadResource(String path) {
