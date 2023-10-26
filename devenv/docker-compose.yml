@@ -25,7 +25,6 @@ services:
     image: nginx
     ports:
       - "80:80"
-    network_mode: "host"
     volumes:
       - ./nginx:/etc/nginx
 
