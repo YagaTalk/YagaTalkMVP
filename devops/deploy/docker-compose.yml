@@ -1,11 +1,11 @@
 version: "3.5"
 
-
 services:
 
   backend:
     build:
       context: .
+    container_name: backend-${ENVIRONMENT_NAME:?}
     depends_on:
       - keycloak
       - dbpostgres
@@ -43,9 +43,13 @@ services:
 
   nginx:
     image: nginx
+    container_name: nginx-${ENVIRONMENT_NAME:?}
     ports:
       - "80:80"
-    network_mode: "host"
+    environment:
+      NGINX_ENVSUBST_OUTPUT_DIR: /etc/nginx
+      BACKEND_HOST: backend-${ENVIRONMENT_NAME:?}
+      BACKEND_PORT: 8082
     volumes:
       - ./nginx:/etc/nginx
 
