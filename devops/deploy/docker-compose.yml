@@ -1,0 +1,70 @@
+version: "3.5"
+
+services:
+
+  backend:
+    build:
+      context: .
+    container_name: backend-${ENVIRONMENT_NAME:?}
+    depends_on:
+      - keycloak
+      - dbpostgres
+    ports:
+      - "8082:8082"
+    environment:
+      DB_URL: "jdbc:postgresql://dbpostgres:5432/yaga-talk"
+      DB_USERNAME: "admin"
+      DB_PASSWORD: "admin"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:?}"
+
+  dbpostgres:
+    image: postgres:15-alpine
+    container_name: postgres-${ENVIRONMENT_NAME:?}
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: yaga-talk
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.3
+    container_name: keycloak-${ENVIRONMENT_NAME:?}
+    ports:
+      - "9090:8080"
+    environment:
+      KEYCLOAK_ADMIN: "${KEYCLOAK_ADMIN_USER:?}"
+      KEYCLOAK_ADMIN_PASSWORD: "${KEYCLOAK_ADMIN_PASSWORD:?}"
+    command:
+      - 'start-dev'
+      - '--health-enabled=true'
+      - '--auto-build'
+      - '--http-enabled=true'
+
+  nginx:
+    image: nginx
+    container_name: nginx-${ENVIRONMENT_NAME:?}
+    ports:
+      - "80:80"
+    environment:
+      NGINX_ENVSUBST_OUTPUT_DIR: /etc/nginx
+      BACKEND_HOST: backend-${ENVIRONMENT_NAME:?}
+      BACKEND_PORT: 8082
+    volumes:
+      - ./nginx:/etc/nginx
+
+  maildev:
+    image: docker.io/maildev/maildev:2.1.0
+    container_name: maildev-${ENVIRONMENT_NAME:?}
+    profiles:
+      - dev
+      - stage
+    environment:
+      MAILDEV_WEB_PORT: "9091:8080"
+      MAILDEV_SMTP_PORT: "25"
+      MAILDEV_INCOMING_USER: me@maildev.local
+      MAILDEV_INCOMING_PASS: supersecret
+      MAILDEV_WEB_USER: "${MAILDEV_WEB_USER}"
+      MAILDEV_WEB_PASS: "${MAILDEV_WEB_PASS}"
+    ports:
+      - "8081:8080"

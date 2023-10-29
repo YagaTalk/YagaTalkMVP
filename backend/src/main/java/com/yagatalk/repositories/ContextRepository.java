@@ -1,14 +1,13 @@
 package com.yagatalk.repositories;
 
 import com.yagatalk.domain.Context;
-import com.yagatalk.domain.Message;
-import com.yagatalk.openaiclient.Role;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 
 import java.sql.Timestamp;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -25,10 +24,10 @@ public class ContextRepository {
                 context.getId(),context.getContent(), Timestamp.from(context.getCreatedTime()),context.getName());
     }
 
-    public Context get(UUID contextId){
-        return jdbcTemplate.queryForObject("SELECT * FROM CONTEXT WHERE id = ?",
+    public Optional<Context> get(UUID contextId){
+        return Optional.ofNullable(jdbcTemplate.queryForObject("SELECT * FROM CONTEXT WHERE id = ?",
                 extractContext,
-                contextId);
+                contextId));
     }
 
     public String getContent(UUID contextId) {

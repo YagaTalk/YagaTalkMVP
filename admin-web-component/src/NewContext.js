@@ -2,6 +2,7 @@ import './ContextTable.css';
 import React, { useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
+import {BACKEND_URL} from "./Config";
 
 function NewContext() {
     const [name, setName] = useState('');
@@ -20,7 +21,7 @@ function NewContext() {
         event.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:8082/api/chat/context', {
+            const response = await axios.post(`${BACKEND_URL}/api/chat/context`, {
                 name,
                 content
             });

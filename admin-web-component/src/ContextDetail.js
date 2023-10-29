@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import {Button, Modal, Table} from "react-bootstrap";
 import { format } from "date-fns";
 import './ContextDetail.css';
+import {BACKEND_URL} from "./Config";
 
 function ContextDetail() {
     const { contextId } = useParams();
@@ -12,7 +13,7 @@ function ContextDetail() {
 
     useEffect(() => {
         const fetchData = () => {
-            fetch(`http://localhost:8082/api/chat/context/${contextId}`)
+            fetch(`${BACKEND_URL}/api/chat/context/${contextId}`)
                 .then(response => response.json())
                 .then(data => setContextData(data))
                 .catch(error => console.error('Error fetching contexts:', error));

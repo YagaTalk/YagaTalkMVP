@@ -1,3 +1,4 @@
 rootProject.name = 'YagaTalk'
 include("backend")
+include("admin-web-component")
 include("web-component")

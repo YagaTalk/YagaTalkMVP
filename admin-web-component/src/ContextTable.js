@@ -5,6 +5,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {format} from "date-fns";
+import {BACKEND_URL} from "./Config";
 
 
 
@@ -31,7 +32,7 @@ function ContextTable() {
         const fetchData = () => {
             const formattedDate = selectedDate ? formatDate(selectedDate.getFullYear(), (selectedDate.getMonth() + 1).toString().padStart(2, '0'), selectedDate.getDate().toString().padStart(2, '0')) : '';
 
-            fetch(`http://localhost:8082/api/chat/contexts?asc_sort=${sortByDate}&searchNameQuery=${searchTerm}&searchDateQuery=${formattedDate}`)
+            fetch(`${BACKEND_URL}/api/chat/contexts?asc_sort=${sortByDate}&searchNameQuery=${searchTerm}&searchDateQuery=${formattedDate}`)
                 .then(response => response.json())
                 .then(data => setContexts(data))
                 .catch(error => console.error('Error fetching contexts:', error));

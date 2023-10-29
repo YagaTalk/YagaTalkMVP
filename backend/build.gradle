@@ -1,3 +1,5 @@
+import java.nio.file.Files
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.1.1'
@@ -16,7 +18,6 @@ repositories {
 }
 
 dependencies {
-	runtimeOnly project(':web-component')
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
@@ -29,14 +30,52 @@ dependencies {
 	testImplementation "com.github.tomakehurst:wiremock-standalone:3.0.0-beta-8"
 }
 
-task copyWebApp(type: Copy) {
-	from "$rootDir\\web-component\\build\\static\\css\\main.css"
-	from "$rootDir\\web-component\\build\\static\\js\\main.js"
-	into "$rootDir\\backend\\build\\resources\\main\\static\\embed"
+tasks.register('copyWebComponent', Copy) { task ->
+	into "${sourceSets.main.output.resourcesDir}/static"
+
+	def webComponentBuildPath = "$rootDir/web-component/build"
+	from("$webComponentBuildPath/js") {
+		include("main.js")
+		rename("main.js", "web-component.js")
+		into("js")
+	}
+
+	from("$webComponentBuildPath/css") {
+		include("main.css")
+		rename("main.css", "web-component.css")
+		into("css")
+	}
+
+	from ("$webComponentBuildPath/images") {
+		into("images")
+	}
 }
 
-bootJar.dependsOn(copyWebApp)
-compileJava.dependsOn ":web-component:build"
+tasks.register('copyAdminWebComponent', Copy) { task ->
+	into "${sourceSets.main.output.resourcesDir}/static"
+
+	def webComponentBuildPath = "$rootDir/admin-web-component/build"
+	from("$webComponentBuildPath/js") {
+		include("main.js")
+		rename("main.js", "admin-web-component.js")
+		into("js")
+	}
+
+	from("$webComponentBuildPath/css") {
+		include("main.css")
+		rename("main.css", "admin-web-component.css")
+		into("css")
+	}
+
+	from ("$webComponentBuildPath/images") {
+		into("images")
+	}
+}
+
+classes {
+	dependsOn(copyWebComponent)
+	dependsOn(copyAdminWebComponent)
+}
 
 tasks.named('test') {
 	useJUnitPlatform()

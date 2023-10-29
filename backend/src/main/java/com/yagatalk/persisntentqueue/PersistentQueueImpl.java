@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PersistentQueueImpl implements IPersistentQueue {
+
+    private static final Logger logger = LoggerFactory.getLogger(PersistentQueueImpl.class);
+
     private final Map<Class<?>, DefaultTaskHandler<?>> handlerMap;
     private final PersistentQueueRepository persistentQueueRepository;
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -43,19 +48,28 @@ public class PersistentQueueImpl implements IPersistentQueue {
     @Scheduled(fixedDelay = TREE_SECONDS)
     @Transactional
     public void processTasksScheduler() {
-        processTasks();
+        try {
+            processTasks();
+        } catch (Exception e) {
+            logger.error("error occurred in async task", e);
+        }
     }
 
     public void processTasks() {
-            for (Task task : persistentQueueRepository.getAllTasksByState(State.PENDING).toList()) {
-                persistentQueueRepository.updateState(task.getId(), State.RUNNING);
-                Object taskObject = task.getTaskObject((taskType, payload) -> jsonToTask(task.getId().toString(),
-                        taskType,
-                        payload));
-                DefaultTaskHandler<Object> handler = (DefaultTaskHandler<Object>) handlerMap.get(taskObject.getClass());
-                handler.execute(taskObject);
-                persistentQueueRepository.updateState(task.getId(), State.FINISHED);
-            }
+        var tasks = persistentQueueRepository.getAllTasksByState(State.PENDING).toList();
+        logger.info("found {} tasks to execute", tasks.size());
+
+        for (Task task : tasks) {
+            persistentQueueRepository.updateState(task.getId(), State.RUNNING);
+            Object taskObject = task.getTaskObject((taskType, payload) -> jsonToTask(task.getId().toString(),
+                    taskType,
+                    payload));
+            DefaultTaskHandler<Object> handler = (DefaultTaskHandler<Object>) handlerMap.get(taskObject.getClass());
+            handler.execute(taskObject);
+            persistentQueueRepository.updateState(task.getId(), State.FINISHED);
+        }
+
+        logger.info("completed {} tasks", tasks.size());
     }
 
     private static Object jsonToTask(String taskId,String taskType, JsonNode taskJson) {
