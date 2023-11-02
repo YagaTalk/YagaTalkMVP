@@ -19,9 +19,11 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
@@ -51,30 +53,8 @@ tasks.register('copyWebComponent', Copy) { task ->
 	}
 }
 
-tasks.register('copyAdminWebComponent', Copy) { task ->
-	into "${sourceSets.main.output.resourcesDir}/static"
-
-	def webComponentBuildPath = "$rootDir/admin-web-component/build"
-	from("$webComponentBuildPath/js") {
-		include("main.js")
-		rename("main.js", "admin-web-component.js")
-		into("js")
-	}
-
-	from("$webComponentBuildPath/css") {
-		include("main.css")
-		rename("main.css", "admin-web-component.css")
-		into("css")
-	}
-
-	from ("$webComponentBuildPath/images") {
-		into("images")
-	}
-}
-
 classes {
 	dependsOn(copyWebComponent)
-	dependsOn(copyAdminWebComponent)
 }
 
 tasks.named('test') {
