@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import './ContextTable.css';
+import './AssistantTable.css';
 import {useNavigate} from "react-router-dom";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {format} from "date-fns";
+import { Link } from 'react-router-dom';
+import Button from 'react-bootstrap/Button';
 import {BACKEND_URL} from "./Config";
 
 
 
-function ContextTable() {
+function AssistantTable() {
 
     const [contexts, setContexts] = useState([]);
     const [sortByDate, setSortByDate] = useState(true);
@@ -48,13 +50,12 @@ function ContextTable() {
             </div>
 
             <div className="input-container">
-
                 <div className="search-bar">
                     <input
                         type="text"
                         placeholder="Find a context..."
                         value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
 
@@ -63,7 +64,7 @@ function ContextTable() {
                     <select
                         id="sortSelect"
                         value={sortByDate ? 'descending' : 'ascending'}
-                        onChange={e => setSortByDate(e.target.value === 'descending')}
+                        onChange={(e) => setSortByDate(e.target.value === 'descending')}
                     >
                         <option value="descending">Descending date</option>
                         <option value="ascending">Ascending date</option>
@@ -72,12 +73,19 @@ function ContextTable() {
                 <div className="date-dropdown">
                     <DatePicker
                         selected={selectedDate}
-                        onChange={date => setSelectedDate(date)}
+                        onChange={(date) => setSelectedDate(date)}
                         dateFormat="yyyy-MM-dd"
                         placeholderText="Select a date"
                     />
                 </div>
+
+                <div className="ml-auto"> {/* Используем ml-auto для размещения кнопки справа */}
+                    <Button variant="primary" as={Link} to="/context/add" className="add-context-button btn-sm">
+                        Add New Context
+                    </Button>
+                </div>
             </div>
+
 
             <div className="context-list">
             {contexts.map(context => (
@@ -98,4 +106,4 @@ function ContextTable() {
     );
 }
 
-export default ContextTable;
+export default AssistantTable;
