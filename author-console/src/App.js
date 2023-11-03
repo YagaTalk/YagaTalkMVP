@@ -1,6 +1,5 @@
 import './App.css';
 import React from 'react';
-import { render } from "react-dom";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AssistantTable from "./AssistantTable";
 import ContextDetail from "./ContextDetail";
@@ -9,11 +8,8 @@ import ChatHistoryTable from "./ChatHistoryTable";
 import EmbeddingInstruction from "./EmbeddingInstruction";
 
 
-const rootElement = document.getElementById("root");
-
-
 function App() {
-    render(
+    return (
         <BrowserRouter>
             <Routes>
                 <Route path="/context/add" element={<NewContext/>}/>
@@ -23,8 +19,7 @@ function App() {
                 <Route path="/context/:contextId/instruction" element={<EmbeddingInstruction/>}/>
                 <Route path="*" element={<AssistantTable />}/>
             </Routes>
-        </BrowserRouter>,
-        rootElement
+        </BrowserRouter>
     );
 }
 export default App;
