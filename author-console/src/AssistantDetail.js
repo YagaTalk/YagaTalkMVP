@@ -2,48 +2,48 @@ import {useNavigate, useParams} from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import {Button, Modal, Table} from "react-bootstrap";
 import { format } from "date-fns";
-import './ContextDetail.css';
+import './AssistantDetail.css';
 import {BACKEND_URL} from "./Config";
 
-function ContextDetail() {
-    const { contextId } = useParams();
-    const [contextData, setContextData] = useState(null);
+function AssistantDetail() {
+    const { assistantId } = useParams();
+    const [assistantData, setAssistantData] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const navigate  = useNavigate();
 
     useEffect(() => {
         const fetchData = () => {
-            fetch(`${BACKEND_URL}/api/chat/context/${contextId}`)
+            fetch(`${BACKEND_URL}/api/chat/assistant/${assistantId}`)
                 .then(response => response.json())
-                .then(data => setContextData(data))
-                .catch(error => console.error('Error fetching contexts:', error));
+                .then(data => setAssistantData(data))
+                .catch(error => console.error('Error fetching assistants:', error));
         };
 
         fetchData();
-    }, [contextId]);
+    }, [assistantId]);
 
     const goToChatHistory = () => {
-        navigate('/context/'+contextId+'/chatHistory');
+        navigate('/assistant/'+assistantId+'/chatHistory');
     };
 
     const goToEmbeddingInstruction = ()=> {
-        navigate('/context/'+contextId+'/instruction')
+        navigate('/assistant/'+assistantId+'/instruction')
     }
 
     return (
-        <div className="context-page">
+        <div className="assistant-page">
             <div className="chat-header">
                 YagaTalk
             </div>
             <div className="action-buttons">
 
                 <Button className="action-button" onClick={() => setShowModal(true)}>Test Chat</Button>
-                <Button className="action-button">Archive Context</Button>
+                <Button className="action-button">Archive Assistant</Button>
                 <Button className="action-button" onClick={goToEmbeddingInstruction}>Embedding Instruction</Button>
                 <Button className="action-button" onClick={goToChatHistory}>Chat History</Button>
             </div>
-            {contextData && (
-                <div className="context-table">
+            {assistantData && (
+                <div className="assistant-table">
                     <Table striped bordered>
                         <thead>
                         <tr>
@@ -54,9 +54,9 @@ function ContextDetail() {
                         </thead>
                         <tbody>
                         <tr>
-                            <td>{contextData.name}</td>
-                            <td>{format(new Date(contextData.createdTime), "yyyy-MM-dd HH:mm")}</td>
-                            <td>{contextData.content}</td>
+                            <td>{assistantData.name}</td>
+                            <td>{format(new Date(assistantData.createdTime), "yyyy-MM-dd HH:mm")}</td>
+                            <td>{assistantData.content}</td>
                         </tr>
                         </tbody>
                     </Table>
@@ -73,4 +73,4 @@ function ContextDetail() {
     );
 }
 
-export default ContextDetail;
+export default AssistantDetail;

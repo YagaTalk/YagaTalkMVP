@@ -1,7 +1,7 @@
 package com.yagatalk.services;
 
+import com.yagatalk.domain.Assistant;
 import com.yagatalk.domain.ChatSession;
-import com.yagatalk.domain.Context;
 import com.yagatalk.domain.Message;
 import com.yagatalk.openaiclient.Role;
 import com.yagatalk.persisntentqueue.IPersistentQueue;
@@ -22,39 +22,39 @@ public class ChatSessionService {
 
     private final IPersistentQueue persistentQueueImpl;
 
-    private final ContextRepository contextRepository;
+    private final AssistantRepository assistantRepository;
 
     public ChatSessionService(ChatSessionRepository chatSessionRepository,
                               MessageRepository messageRepository,
                               IPersistentQueue persistentQueueImpl,
-                              ContextRepository contextRepository) {
+                              AssistantRepository assistantRepository) {
         this.chatSessionRepository = chatSessionRepository;
         this.messageRepository = messageRepository;
         this.persistentQueueImpl = persistentQueueImpl;
-        this.contextRepository = contextRepository;
+        this.assistantRepository = assistantRepository;
 
     }
 
     @Transactional
-    public UUID createContext(String content, String name) {
-        var context = new Context(UUIDGenerator.generateUUID(), content, Instant.now(), name);
-        contextRepository.save(context);
-        return context.getId();
+    public UUID createAssistant(String content, String name) {
+        var assistant = new Assistant(UUIDGenerator.generateUUID(), content, Instant.now(), name);
+        assistantRepository.save(assistant);
+        return assistant.getId();
     }
 
 
     @Transactional
-    public UUID createChatSession(UUID contextId) {
+    public UUID createChatSession(UUID assistantId) {
         UUID id = UUID.randomUUID();
-        var session = new ChatSession(id, contextId,Instant.now());
+        var session = new ChatSession(id, assistantId,Instant.now());
         chatSessionRepository.save(session);
 
-        createSystemMessage(contextId, session.getId());
+        createSystemMessage(assistantId, session.getId());
         return session.getId();
     }
 
-    public List<ChatSessionDTO> getAllChatSessionByContextID(UUID contextID){
-        return chatSessionRepository.getAllSessionsByContextID(contextID).map(this::convertToChatSessionDTO).toList();
+    public List<ChatSessionDTO> getAllChatSessionByAssistantID(UUID assistantID){
+        return chatSessionRepository.getAllSessionsByAssistantID(assistantID).map(this::convertToChatSessionDTO).toList();
     }
     public record ChatSessionDTO(UUID id,Instant createdTime){}
 
@@ -63,8 +63,8 @@ public class ChatSessionService {
     }
 
     @Transactional
-    public void createSystemMessage(UUID contextId, UUID sessionId) {
-        String text = contextRepository.getContent(contextId);
+    public void createSystemMessage(UUID assistantId, UUID sessionId) {
+        String text = assistantRepository.getContent(assistantId);
         Message message = new Message(UUIDGenerator.generateUUID(),
                 sessionId,
                 Role.SYSTEM,
@@ -87,39 +87,39 @@ public class ChatSessionService {
         return new MessageDTO(message.getRole(), message.getCreatedTime().toEpochMilli(), message.getContent());
     }
 
-    public Optional<ContextDTOWithContent> getContext(UUID contextId){
-        return contextRepository.get(contextId).map(this::convertToContextDTOWithContent);
+    public Optional<AssistantDTOWithContent> getAssistant(UUID assistantId){
+        return assistantRepository.get(assistantId).map(this::convertToAssistantDTOWithContent);
     }
 
-    public record ContextDTOWithContent(String content,Instant createdTime,String name){}
+    public record AssistantDTOWithContent(String content, Instant createdTime, String name){}
 
-    private ContextDTOWithContent convertToContextDTOWithContent(Context context) {
-        return new ContextDTOWithContent(context.getContent(),context.getCreatedTime(),context.getName());
+    private AssistantDTOWithContent convertToAssistantDTOWithContent(Assistant assistant) {
+        return new AssistantDTOWithContent(assistant.getContent(), assistant.getCreatedTime(), assistant.getName());
     }
 
-    public List<ContextDTO> getAllContexts(Optional<Boolean> ascSort,
-                                           Optional<String> searchNameQuery,
-                                           Optional<String> searchDateQuery) {
+    public List<AssistantDTO> getAllAssistants(Optional<Boolean> ascSort,
+                                               Optional<String> searchNameQuery,
+                                               Optional<String> searchDateQuery) {
         if (ascSort.isPresent() && Boolean.TRUE.equals(ascSort.get())){
             if (searchDateQuery.isPresent() && !searchDateQuery.get().equals("")){
-                return contextRepository.getAllContextsWithSearchByDate("ASC",search(searchNameQuery),searchDateQuery.get()).map(this::convertToContextDTO).toList();
+                return assistantRepository.getAllAssistantsWithSearchByDate("ASC",search(searchNameQuery),searchDateQuery.get()).map(this::convertToAssistantDTO).toList();
             }
-            return contextRepository.getAllContexts("ASC",search(searchNameQuery)).map(this::convertToContextDTO).toList();
+            return assistantRepository.getAllAssistants("ASC",search(searchNameQuery)).map(this::convertToAssistantDTO).toList();
         }
         if (searchDateQuery.isPresent() && !searchDateQuery.get().equals("")){
-            return contextRepository.getAllContextsWithSearchByDate("DESC",search(searchNameQuery),searchDateQuery.get()).map(this::convertToContextDTO).toList();
+            return assistantRepository.getAllAssistantsWithSearchByDate("DESC",search(searchNameQuery),searchDateQuery.get()).map(this::convertToAssistantDTO).toList();
         }
-        return contextRepository.getAllContexts("DESC",search(searchNameQuery)).map(this::convertToContextDTO).toList();
+        return assistantRepository.getAllAssistants("DESC",search(searchNameQuery)).map(this::convertToAssistantDTO).toList();
     }
     private String search(Optional<String> searchQuery){
         return searchQuery.orElse("");
     }
 
-    public record ContextDTO(UUID id,String name, Instant createdTime) {
+    public record AssistantDTO(UUID id, String name, Instant createdTime) {
     }
 
-    private ContextDTO convertToContextDTO(Context context) {
-        return new ContextDTO(context.getId(), context.getName(), context.getCreatedTime());
+    private AssistantDTO convertToAssistantDTO(Assistant assistant) {
+        return new AssistantDTO(assistant.getId(), assistant.getName(), assistant.getCreatedTime());
     }
 
     public record MessageDTO(Role role, long created_at_ms, String content) {

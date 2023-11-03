@@ -4,7 +4,7 @@ import { Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
 import {BACKEND_URL} from "./Config";
 
-function NewContext() {
+function NewAssistant() {
     const [name, setName] = useState('');
     const [content, setContent] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -21,7 +21,7 @@ function NewContext() {
         event.preventDefault();
 
         try {
-            const response = await axios.post(`${BACKEND_URL}/api/chat/context`, {
+            const response = await axios.post(`${BACKEND_URL}/api/chat/assistant`, {
                 name,
                 content
             });
@@ -73,7 +73,7 @@ function NewContext() {
                     <Modal.Title>Success!</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    Context created successfully!
+                    Assistant created successfully!
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="primary" onClick={handleCloseModal}>
@@ -86,4 +86,4 @@ function NewContext() {
     );
 }
 
-export default NewContext;
+export default NewAssistant;

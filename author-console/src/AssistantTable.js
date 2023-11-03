@@ -13,14 +13,14 @@ import {BACKEND_URL} from "./Config";
 
 function AssistantTable() {
 
-    const [contexts, setContexts] = useState([]);
+    const [assistants, setAssistants] = useState([]);
     const [sortByDate, setSortByDate] = useState(true);
     const [searchTerm,setSearchTerm] = useState('');
     const navigate  = useNavigate();
     const [selectedDate, setSelectedDate] = useState(null);
 
-    const handleRowClick = (contextId) => {
-        navigate('/context/'+contextId);
+    const handleRowClick = (assistantId) => {
+        navigate('/assistant/'+assistantId);
     };
 
     const formatDate = (year, month, day) => {
@@ -34,17 +34,17 @@ function AssistantTable() {
         const fetchData = () => {
             const formattedDate = selectedDate ? formatDate(selectedDate.getFullYear(), (selectedDate.getMonth() + 1).toString().padStart(2, '0'), selectedDate.getDate().toString().padStart(2, '0')) : '';
 
-            fetch(`${BACKEND_URL}/api/chat/contexts?asc_sort=${sortByDate}&searchNameQuery=${searchTerm}&searchDateQuery=${formattedDate}`)
+            fetch(`${BACKEND_URL}/api/chat/assistants?asc_sort=${sortByDate}&searchNameQuery=${searchTerm}&searchDateQuery=${formattedDate}`)
                 .then(response => response.json())
-                .then(data => setContexts(data))
-                .catch(error => console.error('Error fetching contexts:', error));
+                .then(data => setAssistants(data))
+                .catch(error => console.error('Error fetching assistants:', error));
         };
 
         fetchData();
     }, [sortByDate, searchTerm,selectedDate]);
 
     return (
-        <div className="context-table-page">
+        <div className="assistant-table-page">
             <div className="chat-header">
                 YagaTalk
             </div>
@@ -53,7 +53,7 @@ function AssistantTable() {
                 <div className="search-bar">
                     <input
                         type="text"
-                        placeholder="Find a context..."
+                        placeholder="Find a assistant..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -80,23 +80,23 @@ function AssistantTable() {
                 </div>
 
                 <div className="ml-auto"> {/* Используем ml-auto для размещения кнопки справа */}
-                    <Button variant="primary" as={Link} to="/context/add" className="add-context-button btn-sm">
-                        Add New Context
+                    <Button variant="primary" as={Link} to="/assistant/add" className="add-assistant-button btn-sm">
+                        Add New Assistant
                     </Button>
                 </div>
             </div>
 
 
-            <div className="context-list">
-            {contexts.map(context => (
-                <div className="context-item-container" key={context.name}>
+            <div className="assistant-list">
+            {assistants.map(assistant => (
+                <div className="assistant-item-container" key={assistant.name}>
                     <li
-                        onClick={() => handleRowClick(context.id)}
-                        className="context-item"
+                        onClick={() => handleRowClick(assistant.id)}
+                        className="assistant-item"
                     >
-                        <div className="context-info">
-                            <div className="context-name">{context.name}</div>
-                            <div className="context-date">{format(new Date(context.createdTime), "yyyy-MM-dd HH:mm")}</div>
+                        <div className="assistant-info">
+                            <div className="assistant-name">{assistant.name}</div>
+                            <div className="assistant-date">{format(new Date(assistant.createdTime), "yyyy-MM-dd HH:mm")}</div>
                         </div>
                     </li>
                 </div>

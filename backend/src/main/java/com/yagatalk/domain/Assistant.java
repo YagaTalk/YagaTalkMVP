@@ -3,14 +3,14 @@ package com.yagatalk.domain;
 import java.time.Instant;
 import java.util.UUID;
 
-public class Context {
+public class Assistant {
     private final UUID id;
     private final String content;
 
     private final Instant createdTime;
     private final String name;
 
-    public Context(UUID id, String content,Instant createdTime, String name) {
+    public Assistant(UUID id, String content, Instant createdTime, String name) {
         this.id = id;
         this.name = name;
         this.createdTime = createdTime;

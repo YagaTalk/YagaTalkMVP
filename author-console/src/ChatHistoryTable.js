@@ -6,21 +6,21 @@ import {BACKEND_URL} from "./Config";
 
 
 function ChatHistoryTable() {
-    const { contextId } = useParams();
+    const { assistantId } = useParams();
     const [chatSessions, setChatSessions] = useState([]);
     const [showModal, setShowModal] = useState(false);
 
 
     useEffect(() => {
         const fetchData = () => {
-            fetch(`${BACKEND_URL}/api/chat/context/${contextId}/sessions`)
+            fetch(`${BACKEND_URL}/api/chat/assistant/${assistantId}/sessions`)
                 .then(response => response.json())
                 .then(data => setChatSessions(data))
-                .catch(error => console.error('Error fetching contexts:', error));
+                .catch(error => console.error('Error fetching assistants:', error));
         };
 
         fetchData();
-    }, [contextId]);
+    }, [assistantId]);
 
     return (
         <div className="ChatHistory-page">
@@ -28,15 +28,15 @@ function ChatHistoryTable() {
                 YagaTalk
             </div>
 
-            <div className="context-list">
+            <div className="assistant-list">
                 {chatSessions.map(chatSession => (
-                    <div className="context-item-container" key={chatSession.id}>
+                    <div className="assistant-item-container" key={chatSession.id}>
                         <li
                             onClick={() => setShowModal(true)}
-                            className="context-item"
+                            className="assistant-item"
                         >
-                            <div className="context-info">
-                                <div className="context-date">{format(new Date(chatSession.createdTime), "yyyy-MM-dd HH:mm")}</div>
+                            <div className="assistant-info">
+                                <div className="assistant-date">{format(new Date(chatSession.createdTime), "yyyy-MM-dd HH:mm")}</div>
                             </div>
                         </li>
                     </div>

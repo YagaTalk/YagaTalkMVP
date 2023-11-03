@@ -1,6 +1,6 @@
 package com.yagatalk.controllers;
 
-import com.yagatalk.repositories.ContextRepository;
+import com.yagatalk.repositories.AssistantRepository;
 import com.yagatalk.utill.InvalidRequestException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,10 +12,10 @@ import java.util.UUID;
 @RestController
 public class UiController {
 
-    private final ContextRepository contextsRepository;
+    private final AssistantRepository assistantRepository;
 
-    public UiController(ContextRepository contextsRepository) {
-        this.contextsRepository = contextsRepository;
+    public UiController(AssistantRepository assistantRepository) {
+        this.assistantRepository = assistantRepository;
     }
 
     @GetMapping("/")
@@ -23,12 +23,12 @@ public class UiController {
         return loadResource("pages/admin-console.html");
     }
 
-    @GetMapping("/embeddable-chat/{contextId}")
-    public byte[] getEmbeddableChatComponent(@PathVariable("contextId") UUID contextId) {
-        var context = contextsRepository.get(contextId);
-        return context
+    @GetMapping("/embeddable-chat/{assistantId}")
+    public byte[] getEmbeddableChatComponent(@PathVariable("assistantId") UUID assistantId) {
+        var assistant = assistantRepository.get(assistantId);
+        return assistant
                 .map(c -> loadResource("pages/embeddable-chat-page.html"))
-                .orElseThrow(() -> new InvalidRequestException("context not found"));
+                .orElseThrow(() -> new InvalidRequestException("assistant not found"));
     }
 
     private static byte[] loadResource(String path) {

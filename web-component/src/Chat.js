@@ -2,18 +2,18 @@ import React, {useEffect, useRef, useState} from 'react';
 import './Chat.css';
 import {BACKEND_URL} from "./Config";
 
-const DEFAULT_CONTEXT_ID = "a1e7e851-505b-4b62-b4de-5a56d46ee843"
+const DEFAULT_ASSISTANT_ID = "a1e7e851-505b-4b62-b4de-5a56d46ee843"
 
-function resolveContextId() {
+function resolveAssistantId() {
     const path = window.location.pathname
-    if (!path) return DEFAULT_CONTEXT_ID
+    if (!path) return DEFAULT_ASSISTANT_ID
     const lastSegmentOfPath = path.split("/")[-1]
-    if (!lastSegmentOfPath) return DEFAULT_CONTEXT_ID
+    if (!lastSegmentOfPath) return DEFAULT_ASSISTANT_ID
     return lastSegmentOfPath
 }
 
 function Chat() {
-    const [contextId] = useState(resolveContextId())
+    const [assistantId] = useState(resolveAssistantId())
     const [sessionId, setSessionId] = useState(null)
     const chatBodyRef = useRef(null);
     const txtInputRef = useRef(null);
@@ -23,8 +23,8 @@ function Chat() {
     useEffect(() => {
         if (!!sessionId) return
 
-        getChatSession(contextId)
-    }, [sessionId, contextId])
+        getChatSession(assistantId)
+    }, [sessionId, assistantId])
 
     useEffect(() => {
         if (!sessionId) return
@@ -43,9 +43,9 @@ function Chat() {
         }
     }, [messages]);
 
-    const getChatSession = async (contextId) => {
+    const getChatSession = async (assistantId) => {
         try {
-            const response = await fetch(`${BACKEND_URL}/api/chat/context/${contextId}/currentSession`);
+            const response = await fetch(`${BACKEND_URL}/api/chat/assistant/${assistantId}/currentSession`);
             if (response.ok) {
                 const body = await response.json()
                 setSessionId(body.id);

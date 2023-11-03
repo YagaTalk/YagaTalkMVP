@@ -6,12 +6,12 @@ import java.util.UUID;
 public class ChatSession{
     private final UUID id;
 
-    private final UUID contextId;
+    private final UUID assistantId;
 
     private final Instant createdTime;
-    public ChatSession(UUID id, UUID contextId, Instant createdTime) {
+    public ChatSession(UUID id, UUID assistantId, Instant createdTime) {
         this.id = id;
-        this.contextId = contextId;
+        this.assistantId = assistantId;
         this.createdTime = createdTime;
     }
 
@@ -19,8 +19,8 @@ public class ChatSession{
         return id;
     }
 
-    public UUID getContextId() {
-        return contextId;
+    public UUID getAssistantId() {
+        return assistantId;
     }
 
     public Instant getCreatedTime() {

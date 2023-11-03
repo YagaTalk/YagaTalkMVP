@@ -20,19 +20,19 @@ public class ChatSessionRepository {
     }
 
     public void save(ChatSession session) {
-        jdbcTemplate.update("INSERT INTO chat_session(id, context_id, created_time) values (?, ?, ?)",
-                session.getId(), session.getContextId(), Timestamp.from(session.getCreatedTime()));
+        jdbcTemplate.update("INSERT INTO chat_session(id, assistant_id, created_time) values (?, ?, ?)",
+                session.getId(), session.getAssistantId(), Timestamp.from(session.getCreatedTime()));
     }
 
-    public Stream<ChatSession> getAllSessionsByContextID(UUID contextId){
-        return jdbcTemplate.queryForStream("SELECT * FROM chat_session WHERE context_id = ?",
-                extractChatSession,contextId);
+    public Stream<ChatSession> getAllSessionsByAssistantID(UUID assistantId){
+        return jdbcTemplate.queryForStream("SELECT * FROM chat_session WHERE assistant_id = ?",
+                extractChatSession,assistantId);
     }
 
     private static final RowMapper<ChatSession> extractChatSession =
             (rs, rn) -> new ChatSession(
                     UUID.fromString(rs.getString("id")),
-                    UUID.fromString(rs.getString("context_id")),
+                    UUID.fromString(rs.getString("assistant_id")),
                     rs.getTimestamp("created_time").toInstant()
             );
 }

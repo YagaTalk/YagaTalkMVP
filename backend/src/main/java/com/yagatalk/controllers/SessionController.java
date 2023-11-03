@@ -18,37 +18,37 @@ public class SessionController {
         this.chatSessionService = chatSessionService;
     }
 
-    @PostMapping("/context")
-    public ResponseEntity<String> createContext(@RequestBody ContextDTO contextDTO) {
-        var id = chatSessionService.createContext(contextDTO.content,contextDTO.name);
+    @PostMapping("/assistant")
+    public ResponseEntity<String> createAssistant(@RequestBody AssistantDTO assistantDTO) {
+        var id = chatSessionService.createAssistant(assistantDTO.content, assistantDTO.name);
         return ResponseEntity.status(201).body(new IdDTO(id).toString());
     }
 
-    @GetMapping("/context/{contextId}")
-    public Optional<ChatSessionService.ContextDTOWithContent> getContext(@PathVariable("contextId") UUID contextId){
-        return chatSessionService.getContext(contextId);
+    @GetMapping("/assistant/{assistantId}")
+    public Optional<ChatSessionService.AssistantDTOWithContent> getAssistant(@PathVariable("assistantId") UUID assistantId){
+        return chatSessionService.getAssistant(assistantId);
     }
 
-    private record ContextDTO(String content,String name){}
+    private record AssistantDTO(String content, String name){}
 
-    @GetMapping("/contexts")
-    public List<ChatSessionService.ContextDTO> getAllContexts(
+    @GetMapping("/assistants")
+    public List<ChatSessionService.AssistantDTO> getAllAssistants(
             @RequestParam(value = "asc_sort", required = false) Optional<Boolean> ascSort,
             @RequestParam(name = "searchNameQuery", required = false) Optional<String> searchNameQuery,
             @RequestParam(name = "searchDateQuery", required = false) Optional<String> searchDateQuery) {
-        return chatSessionService.getAllContexts(ascSort, searchNameQuery,searchDateQuery);
+        return chatSessionService.getAllAssistants(ascSort, searchNameQuery,searchDateQuery);
     }
 
-    @GetMapping("/context/{contextId}/currentSession")
+    @GetMapping("/assistant/{assistantId}/currentSession")
     public ResponseEntity<IdDTO> getCurrentChatSession(
-            @PathVariable("contextId") UUID contextID) {
-        var id = chatSessionService.createChatSession(contextID);
+            @PathVariable("assistantId") UUID assistantID) {
+        var id = chatSessionService.createChatSession(assistantID);
         return ResponseEntity.status(201).body(new IdDTO(id));
     }
 
-    @GetMapping("/context/{contextId}/sessions")
-    public List<ChatSessionService.ChatSessionDTO> getChatSession(@PathVariable("contextId") UUID contextID) {
-        return chatSessionService.getAllChatSessionByContextID(contextID);
+    @GetMapping("/assistant/{assistantId}/sessions")
+    public List<ChatSessionService.ChatSessionDTO> getChatSession(@PathVariable("assistantId") UUID assistantID) {
+        return chatSessionService.getAllChatSessionByAssistantID(assistantID);
     }
 
     private record IdDTO(UUID id){
@@ -60,7 +60,7 @@ public class SessionController {
         }
     }
 
-    public record ChatSessionDTO(UUID contextId) {
+    public record ChatSessionDTO(UUID assistantId) {
     }
 
 
