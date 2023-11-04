@@ -1,6 +1,11 @@
 name: Deploy to Dev
 
-on: [workflow_dispatch, push]
+on:
+  push:
+    branches:
+      - main
+      - 'releases/**'
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
