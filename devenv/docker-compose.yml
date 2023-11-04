@@ -17,9 +17,11 @@ services:
     environment:
       KEYCLOAK_ADMIN: "admin"
       KEYCLOAK_ADMIN_PASSWORD: "admin"
+    volumes:
+      - './keycloak/import:/opt/keycloak/data/import'
+      - './keycloak/scripts/create-users.sh:/opt/keycloak/bin/create-users.sh'
     command:
-      - 'start-dev'
-      - '--health-enabled=true'
+      - 'start-dev --import-realm --health-enabled=true'
 
   nginx:
     image: nginx

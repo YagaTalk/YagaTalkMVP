@@ -1,4 +1,4 @@
-import './ContextTable.css';
+import './AssistantTable.css';
 import React, { useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
