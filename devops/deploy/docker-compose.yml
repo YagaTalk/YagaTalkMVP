@@ -2,24 +2,9 @@ version: "3.5"
 
 services:
 
-  backend:
-    build:
-      context: .
-    container_name: backend-${ENVIRONMENT_NAME:?}
-    depends_on:
-      - keycloak
-      - dbpostgres
-    ports:
-      - "8082:8082"
-    environment:
-      DB_URL: "jdbc:postgresql://dbpostgres:5432/yaga-talk"
-      DB_USERNAME: "admin"
-      DB_PASSWORD: "admin"
-      OPENAI_API_KEY: "${OPENAI_API_KEY:?}"
-
-  dbpostgres:
+  db-backend:
     image: postgres:15-alpine
-    container_name: postgres-${ENVIRONMENT_NAME:?}
+    container_name: db-backend-${ENVIRONMENT_NAME:?}
     ports:
       - "5432:5432"
     environment:
@@ -27,14 +12,45 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: yaga-talk
 
+  backend:
+    build:
+      context: backend
+    container_name: backend-${ENVIRONMENT_NAME:?}
+    depends_on:
+      - keycloak
+      - db-backend
+    ports:
+      - "8082:8082"
+    environment:
+      DB_URL: "jdbc:postgresql://db-backend:5432/yaga-talk"
+      DB_USERNAME: "admin"
+      DB_PASSWORD: "admin"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:?}"
+
+  db-keycloak:
+    image: postgres:15-alpine
+    container_name: db-keycloak-${ENVIRONMENT_NAME:?}
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: ${KEYCLOAK_DB_USERNAME:?}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?}
+      POSTGRES_DB: keycloak
+
   keycloak:
     image: quay.io/keycloak/keycloak:22.0.3
     container_name: keycloak-${ENVIRONMENT_NAME:?}
+    depends_on:
+      - db-keycloak
     ports:
       - "9090:8080"
     environment:
       KEYCLOAK_ADMIN: "${KEYCLOAK_ADMIN_USER:?}"
       KEYCLOAK_ADMIN_PASSWORD: "${KEYCLOAK_ADMIN_PASSWORD:?}"
+      KC_DB: postgres
+      KC_DB_URL: "jdbc:postgresql://db-keycloak:5432/keycloak"
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USERNAME:?}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?}
     command:
       - 'start-dev'
       - '--health-enabled=true'
@@ -52,6 +68,8 @@ services:
       BACKEND_PORT: 8082
     volumes:
       - ./nginx:/etc/nginx
+      - /author-console:/usr/share/nginx/html/author-console
+      - /web-component:/usr/share/nginx/html/embeddable-chat
 
   maildev:
     image: docker.io/maildev/maildev:2.1.0
