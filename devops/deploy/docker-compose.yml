@@ -53,6 +53,7 @@ services:
       KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?}
     command:
       - 'start-dev'
+      - '--ssl-required=false'
       - '--health-enabled=true'
       - '--auto-build'
       - '--http-enabled=true'
@@ -68,8 +69,8 @@ services:
       BACKEND_PORT: 8082
     volumes:
       - ./nginx:/etc/nginx
-      - /author-console:/usr/share/nginx/html/author-console
-      - /web-component:/usr/share/nginx/html/embeddable-chat
+      - ./author-console:/usr/share/nginx/html/author-console
+      - ./web-component:/usr/share/nginx/html/embeddable-chat
 
   maildev:
     image: docker.io/maildev/maildev:2.1.0

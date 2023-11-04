@@ -6,6 +6,8 @@ http {
 
     resolver 127.0.0.11 ipv6=off;
 
+    root /usr/share/nginx/html/;
+
     server {
         listen 80;
 
@@ -16,11 +18,11 @@ http {
         }
 
         location /embeddable-chat {
-            try_files $uri $uri/ /index.html;
+            try_files $uri $uri/ /embeddable-chat/index.html;
         }
 
         location /author-console {
-            try_files $uri $uri/ /index.html;
+            try_files $uri $uri/ /author-console/index.html;
         }
     }
 }
