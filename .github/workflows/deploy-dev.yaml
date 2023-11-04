@@ -26,6 +26,7 @@ jobs:
       - name: Build Web Component
         run: |
           cd web-component
+          export REACT_APP_BASE_PATH=/embeddable-chat
           echo 'REACT_APP_BACKEND_URL=http://${{ secrets.SSH_SERVER }}' >> .env
           echo 'REACT_APP_BASE_PATH=/embeddable-chat' >> .env
           npm install
@@ -51,6 +52,7 @@ jobs:
       - name: Build Author Console
         run: |
           cd author-console
+          export REACT_APP_BASE_PATH=/author-console
           echo 'REACT_APP_BACKEND_URL=http://${{ secrets.SSH_SERVER }}' > .env
           echo 'REACT_APP_BASE_PATH=/author-console' >> .env
           npm install
