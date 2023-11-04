@@ -21,7 +21,7 @@ function NewAssistant() {
         event.preventDefault();
 
         try {
-            const response = await axios.post(`${BACKEND_URL}/api/chat/assistant`, {
+            const response = await axios.post(`${BACKEND_URL}/api/assistants`, {
                 name,
                 content
             });

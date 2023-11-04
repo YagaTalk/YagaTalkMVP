@@ -12,11 +12,11 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/assistant/add" element={<NewAssistant/>}/>
-                <Route path="/assistant" element={<AssistantTable />}/>
-                <Route path="/assistant/:assistantId" element={<AssistantDetail  />}/>
-                <Route path="/assistant/:assistantId/chatHistory" element={<ChatHistoryTable/>}/>
-                <Route path="/assistant/:assistantId/instruction" element={<EmbeddingInstruction/>}/>
+                <Route path="/assistants/add" element={<NewAssistant/>}/>
+                <Route path="/assistants" element={<AssistantTable />}/>
+                <Route path="/assistants/:assistantId" element={<AssistantDetail  />}/>
+                <Route path="/assistants/:assistantId/chatHistory" element={<ChatHistoryTable/>}/>
+                <Route path="/assistants/:assistantId/instruction" element={<EmbeddingInstruction/>}/>
                 <Route path="*" element={<AssistantTable />}/>
             </Routes>
         </BrowserRouter>

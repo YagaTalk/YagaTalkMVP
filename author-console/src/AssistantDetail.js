@@ -13,7 +13,7 @@ function AssistantDetail() {
 
     useEffect(() => {
         const fetchData = () => {
-            fetch(`${BACKEND_URL}/api/chat/assistant/${assistantId}`)
+            fetch(`${BACKEND_URL}/api/assistants/${assistantId}`)
                 .then(response => response.json())
                 .then(data => setAssistantData(data))
                 .catch(error => console.error('Error fetching assistants:', error));
@@ -23,11 +23,11 @@ function AssistantDetail() {
     }, [assistantId]);
 
     const goToChatHistory = () => {
-        navigate('/assistant/'+assistantId+'/chatHistory');
+        navigate('/assistants/'+assistantId+'/chatHistory');
     };
 
     const goToEmbeddingInstruction = ()=> {
-        navigate('/assistant/'+assistantId+'/instruction')
+        navigate('/assistants/'+assistantId+'/instruction')
     }
 
     return (
