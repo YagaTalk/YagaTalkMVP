@@ -1,26 +1,44 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
 import {format} from "date-fns";
 import {Modal} from "react-bootstrap";
 import {BACKEND_URL} from "./Config";
+import {AuthContext} from "react-oauth2-code-pkce";
+import axios from "axios";
 
 
 function ChatHistoryTable() {
-    const { assistantId } = useParams();
-    const [chatSessions, setChatSessions] = useState([]);
+    const { assistantId} = useParams();
+    const [chatSessions,setChatSessions] = useState([]);
     const [showModal, setShowModal] = useState(false);
 
+    const {token} = useContext(AuthContext);
 
     useEffect(() => {
-        const fetchData = () => {
-            fetch(`${BACKEND_URL}/api/chat/assistant/${assistantId}/sessions`)
-                .then(response => response.json())
-                .then(data => setChatSessions(data))
-                .catch(error => console.error('Error fetching assistants:', error));
+        const fetchData = async () => {
+            const url =`${BACKEND_URL}/api/sessions?assistantId=${assistantId}`
+            const headers = { 'Authorization': `Bearer ${token}` };
+
+
+            try {
+                const response = await axios.get(url, { headers });
+                setChatSessions(response.data);
+            } catch (error) {
+                if (axios.isAxiosError(error)) {
+                    console.log(`Error calling endpoint ${url}: ${error}`);
+                    if (error.response) {
+                        console.error(`Error: ${error.response.status}`);
+                    } else {
+                        console.error(error);
+                    }
+                } else {
+                    throw error;
+                }
+            }
         };
 
         fetchData();
-    }, [assistantId]);
+    }, [token,assistantId]);
 
     return (
         <div className="ChatHistory-page">

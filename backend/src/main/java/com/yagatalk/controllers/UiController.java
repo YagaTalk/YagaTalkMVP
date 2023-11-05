@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.UUID;
 
 @RestController
@@ -24,7 +25,7 @@ public class UiController {
     }
 
     @GetMapping("/embeddable-chat/{assistantId}")
-    public byte[] getEmbeddableChatComponent(@PathVariable("assistantId") UUID assistantId) {
+    public byte[] getEmbeddableChatComponent(Principal principal, @PathVariable("assistantId") UUID assistantId) {
         var assistant = assistantRepository.get(assistantId);
         return assistant
                 .map(c -> loadResource("pages/embeddable-chat-page.html"))

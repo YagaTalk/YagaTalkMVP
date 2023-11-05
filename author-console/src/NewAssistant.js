@@ -1,13 +1,15 @@
 import './AssistantTable.css';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
-import {BACKEND_URL} from "./Config";
+import { BACKEND_URL } from './Config';
+import { AuthContext } from 'react-oauth2-code-pkce';
 
 function NewAssistant() {
     const [name, setName] = useState('');
     const [content, setContent] = useState('');
-    const [showModal, setShowModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
 
     const handleNameChange = (event) => {
         setName(event.target.value);
@@ -17,35 +19,51 @@ function NewAssistant() {
         setContent(event.target.value);
     };
 
+    const { token } = useContext(AuthContext);
+
     const handleSubmit = async (event) => {
         event.preventDefault();
 
+        const url = `${BACKEND_URL}/api/assistants`;
+        const headers = { 'Authorization': `Bearer ${token}` };
+        const data = {
+            name,
+            content,
+        };
+
         try {
-            const response = await axios.post(`${BACKEND_URL}/api/assistants`, {
-                name,
-                content
-            });
+            const response = await axios.post(url, data, { headers });
             console.log('Response:', response.data);
-            setShowModal(true);
+            setSuccessMessage('Assistant created successfully!');
+            setShowSuccessModal(true);
             setName('');
             setContent('');
         } catch (error) {
-            console.error('Error:', error);
+            if (axios.isAxiosError(error)) {
+                console.log(`Error calling endpoint ${url}: ${error}`);
+                if (error.response) {
+                    console.error(`Error: ${error.response.status}`);
+                } else {
+                    console.error(error);
+                }
+            } else {
+                throw error;
+            }
         }
     };
 
-    const handleCloseModal = () => {
-        setShowModal(false);
+    const handleCloseSuccessModal = () => {
+        setShowSuccessModal(false);
     };
 
     return (
         <div className="new-page">
-            <div className="chat-header">
-                YagaTalk
-            </div>
+            <div className="chat-header">YagaTalk</div>
             <form onSubmit={handleSubmit}>
                 <div className="mb-3">
-                    <label htmlFor="name" className="form-label">Name</label>
+                    <label htmlFor="name" className="form-label">
+                        Name
+                    </label>
                     <input
                         type="text"
                         className="form-control"
@@ -56,7 +74,9 @@ function NewAssistant() {
                     />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="content" className="form-label">Content</label>
+                    <label htmlFor="content" className="form-label">
+                        Content
+                    </label>
                     <textarea
                         className="form-control"
                         id="content"
@@ -65,23 +85,22 @@ function NewAssistant() {
                         style={{ minHeight: '100px', resize: 'vertical' }}
                     />
                 </div>
-                <button type="submit" className="btn btn-primary">Submit</button>
+                <button type="submit" className="btn btn-primary">
+                    Submit
+                </button>
             </form>
 
-            <Modal show={showModal} onHide={handleCloseModal}>
+            <Modal show={showSuccessModal} onHide={handleCloseSuccessModal}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Success!</Modal.Title>
+                    <Modal.Title>Success</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    Assistant created successfully!
-                </Modal.Body>
+                <Modal.Body>{successMessage}</Modal.Body>
                 <Modal.Footer>
-                    <Button variant="primary" onClick={handleCloseModal}>
+                    <Button variant="primary" onClick={handleCloseSuccessModal}>
                         Close
                     </Button>
                 </Modal.Footer>
             </Modal>
-
         </div>
     );
 }

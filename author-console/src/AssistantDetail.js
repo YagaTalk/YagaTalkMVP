@@ -1,9 +1,11 @@
 import {useNavigate, useParams} from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {Button, Modal, Table} from "react-bootstrap";
 import { format } from "date-fns";
 import './AssistantDetail.css';
 import {BACKEND_URL} from "./Config";
+import {AuthContext} from "react-oauth2-code-pkce";
+import axios from "axios";
 
 function AssistantDetail() {
     const { assistantId } = useParams();
@@ -11,16 +13,33 @@ function AssistantDetail() {
     const [showModal, setShowModal] = useState(false);
     const navigate  = useNavigate();
 
+
+    const { token } = useContext(AuthContext);
+
     useEffect(() => {
-        const fetchData = () => {
-            fetch(`${BACKEND_URL}/api/assistants/${assistantId}`)
-                .then(response => response.json())
-                .then(data => setAssistantData(data))
-                .catch(error => console.error('Error fetching assistants:', error));
+        const fetchData = async () => {
+            const url = `${BACKEND_URL}/api/assistants/${assistantId}`;
+            const headers = { 'Authorization': `Bearer ${token}` };
+
+            try {
+                const response = await axios.get(url, { headers });
+                setAssistantData(response.data);
+            } catch (error) {
+                if (axios.isAxiosError(error)) {
+                    console.log(`Error calling endpoint ${url}: ${error}`);
+                    if (error.response) {
+                        console.error(`Error: ${error.response.status}`);
+                    } else {
+                        console.error(error);
+                    }
+                } else {
+                    throw error;
+                }
+            }
         };
 
         fetchData();
-    }, [assistantId]);
+    }, [token, assistantId]);
 
     const goToChatHistory = () => {
         navigate('/assistants/'+assistantId+'/chatHistory');
