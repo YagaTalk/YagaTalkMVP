@@ -128,12 +128,12 @@ jobs:
           mkdir -p devops/deploy/author-console
           cp -r author-console/build/** devops/deploy/author-console/
 
-      - name: Download artifact
+      - name: Download backend artifact
         uses: actions/download-artifact@v3
         with:
           name: backend-build
           path: backend/build/libs/
-      - name: Copy extension jar
+      - name: Copy backend jar
         run: cp backend/build/libs/backend-0.0.1-SNAPSHOT.jar devops/deploy/backend/backend.jar
       - name: Prepare .env
         run: |
@@ -154,7 +154,7 @@ jobs:
         with:
           switches: -avzr --delete --exclude="" --include="" --filter=""
           path: devops/deploy/
-          remote_path: yagatalk
+          remote_path: yagatalk/deploy
           remote_host: ${{ secrets.SSH_SERVER }}
           remote_port: 22
           remote_user: ${{ secrets.SSH_USER }}
@@ -168,7 +168,7 @@ jobs:
           port: 22
           script: |
             set -e
-            cd yagatalk
+            cd yagatalk/deploy
             docker compose pull
             docker compose down backend nginx keycloak
             docker compose up -d --build --remove-orphans
