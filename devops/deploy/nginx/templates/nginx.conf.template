@@ -33,10 +33,12 @@ http {
         }
 
         location /embeddable-chat {
+            include /etc/nginx/mime.types;
             try_files $uri $uri/ /embeddable-chat/index.html;
         }
 
         location /author-console {
+            include /etc/nginx/mime.types;
             try_files $uri $uri/ /author-console/index.html;
         }
     }
