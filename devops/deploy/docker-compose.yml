@@ -35,6 +35,8 @@ services:
     container_name: db-keycloak-${ENVIRONMENT_NAME:?}
     ports:
       - "5433:5432"
+    volumes:
+      - "../data/keycloak-data:/var/lib/postgresql/data"
     environment:
       POSTGRES_USER: ${KEYCLOAK_DB_USERNAME:?}
       POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?}
@@ -45,8 +47,6 @@ services:
     container_name: keycloak-${ENVIRONMENT_NAME:?}
     depends_on:
       - db-keycloak
-    volumes:
-      - "../data/keycloak-data:/var/lib/postgresql/data"
     environment:
       KEYCLOAK_ADMIN: "${KEYCLOAK_ADMIN_USER:?}"
       KEYCLOAK_ADMIN_PASSWORD: "${KEYCLOAK_ADMIN_PASSWORD:?}"
