@@ -9,9 +9,24 @@ http {
     root /usr/share/nginx/html/;
 
     server {
-        listen 80;
+        listen 443 ssl;
+        ssl_certificate /etc/nginx/certs/51.250.96.167.crt;
+        ssl_certificate_key /etc/nginx/certs/51.250.96.167.key;
 
         set $backend_url ${BACKEND_HOST}:${BACKEND_PORT};
+
+        location /auth {
+            rewrite ^/auth/(.*)$ /$1 break;
+            proxy_pass http://keycloak:8080;
+
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Host $host;
+            proxy_set_header X-Forwarded-Server $host;
+            proxy_set_header X-Forwarded-Port 443;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
 
         location /api/ {
             proxy_pass http://$backend_url;

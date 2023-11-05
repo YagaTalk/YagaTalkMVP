@@ -27,7 +27,7 @@ jobs:
         run: |
           cd web-component
           export REACT_APP_BASE_PATH=/embeddable-chat
-          echo 'REACT_APP_BACKEND_URL=http://${{ secrets.SSH_SERVER }}' >> .env
+          echo 'REACT_APP_BACKEND_URL=https://${{ secrets.SSH_SERVER }}' >> .env
           echo 'REACT_APP_BASE_PATH=/embeddable-chat' >> .env
           npm install
           npm run build
@@ -53,8 +53,9 @@ jobs:
         run: |
           cd author-console
           export REACT_APP_BASE_PATH=/author-console
-          echo 'REACT_APP_BACKEND_URL=http://${{ secrets.SSH_SERVER }}' > .env
           echo 'REACT_APP_BASE_PATH=/author-console' >> .env
+          echo 'REACT_APP_BACKEND_URL=https://${{ secrets.SSH_SERVER }}' > .env
+          echo 'REACT_APP_KEYCLOAK_URL=/https://${{ secrets.SSH_SERVER }}/auth' >> .env
           npm install
           npm run build
       - name: Upload build dir
@@ -146,6 +147,7 @@ jobs:
           KEYCLOAK_DB_PASSWORD='${{ secrets.KEYCLOAK_DB_PASSWORD }}'
           KEYCLOAK_ADMIN_USER='${{ secrets.KEYCLOAK_ADMIN_USER }}'
           KEYCLOAK_ADMIN_PASSWORD='${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}'
+          KEYCLOAK_URL='https://${{ secrets.SSH_SERVER }}/auth'
           OPENAI_API_KEY='${{ secrets.OPENAI_API_KEY }}'
       - name: Rsync deploy
         uses: burnett01/rsync-deployments@5.2

@@ -25,6 +25,7 @@ services:
       DB_URL: "jdbc:postgresql://db-backend:5432/yaga-talk"
       DB_USERNAME: "admin"
       DB_PASSWORD: "admin"
+      KEYCLOAK_BACKEND_URL: "http://keycloak:8080"
       OPENAI_API_KEY: "${OPENAI_API_KEY:?}"
 
   db-keycloak:
@@ -42,8 +43,6 @@ services:
     container_name: keycloak-${ENVIRONMENT_NAME:?}
     depends_on:
       - db-keycloak
-    ports:
-      - "9090:8080"
     environment:
       KEYCLOAK_ADMIN: "${KEYCLOAK_ADMIN_USER:?}"
       KEYCLOAK_ADMIN_PASSWORD: "${KEYCLOAK_ADMIN_PASSWORD:?}"
@@ -51,11 +50,16 @@ services:
       KC_DB_URL: "jdbc:postgresql://db-keycloak:5432/keycloak"
       KC_DB_USERNAME: ${KEYCLOAK_DB_USERNAME:?}
       KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?}
+      KC_PROXY: edge
+      KC_HOSTNAME_PATH: /auth
+      KC_HOSTNAME_ADMIN_URL: ${KEYCLOAK_URL:?}
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      PROXY_ADDRESS_FORWARDING: true
+      KC_HOSTNAME_STRICT_BACKCHANNEL: false
     command:
       - 'start-dev'
-      - '--ssl-required=false'
       - '--health-enabled=true'
-      - '--auto-build'
       - '--http-enabled=true'
 
   nginx:
@@ -63,6 +67,7 @@ services:
     container_name: nginx-${ENVIRONMENT_NAME:?}
     ports:
       - "80:80"
+      - "443:443"
     environment:
       NGINX_ENVSUBST_OUTPUT_DIR: /etc/nginx
       BACKEND_HOST: backend-${ENVIRONMENT_NAME:?}
@@ -71,6 +76,7 @@ services:
       - ./nginx:/etc/nginx
       - ./author-console:/usr/share/nginx/html/author-console
       - ./web-component:/usr/share/nginx/html/embeddable-chat
+      - ./nginx-cert:/etc/nginx/certs
 
   maildev:
     image: docker.io/maildev/maildev:2.1.0
