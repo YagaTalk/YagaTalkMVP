@@ -55,7 +55,7 @@ jobs:
           export REACT_APP_BASE_PATH=/author-console
           echo 'REACT_APP_BASE_PATH=/author-console' >> .env
           echo 'REACT_APP_BACKEND_URL=https://${{ secrets.SSH_SERVER }}' > .env
-          echo 'REACT_APP_KEYCLOAK_URL=/https://${{ secrets.SSH_SERVER }}/auth' >> .env
+          echo 'REACT_APP_KEYCLOAK_URL=https://${{ secrets.SSH_SERVER }}/auth' >> .env
           npm install
           npm run build
       - name: Upload build dir
