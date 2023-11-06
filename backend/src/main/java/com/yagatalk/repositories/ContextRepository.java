@@ -25,9 +25,8 @@ public class ContextRepository {
     }
 
     public Optional<Context> get(UUID contextId){
-        return Optional.ofNullable(jdbcTemplate.queryForObject("SELECT * FROM CONTEXT WHERE id = ?",
-                extractContext,
-                contextId));
+        var context = jdbcTemplate.query("SELECT * FROM context WHERE id =? ", extractContext, contextId);
+        return context.isEmpty() ? Optional.empty() : Optional.of(context.get(0));
     }
 
     public String getContent(UUID contextId) {

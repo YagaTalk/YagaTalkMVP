@@ -6,11 +6,12 @@ import ContextDetail from "./ContextDetail";
 import NewContext from "./NewContext";
 import ChatHistoryTable from "./ChatHistoryTable";
 import EmbeddingInstruction from "./EmbeddingInstruction";
+import {BASE_PATH} from "./Config";
 
 
 function App() {
     return (
-        <BrowserRouter>
+        <BrowserRouter basename={BASE_PATH}>
             <Routes>
                 <Route path="/context/add" element={<NewContext/>}/>
                 <Route path="/context" element={<AssistantTable />}/>
