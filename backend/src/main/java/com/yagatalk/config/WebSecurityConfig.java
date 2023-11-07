@@ -26,8 +26,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/assistants","/api/sessions").hasAnyRole("admin","author")
-                        .requestMatchers(GET, "/embeddable-chat/**", "/images", "/js", "/css").hasAnyRole("admin","author")
+                        .requestMatchers("/api/assistants/**","/api/sessions").hasAnyRole("admin","author")
                         .anyRequest().permitAll()
                 ).oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt

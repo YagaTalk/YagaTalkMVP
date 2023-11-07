@@ -1,24 +1,18 @@
-###
-GET http://localhost:8082/api/chat/contexts
+### Login in keycloak
+POST http://localhost:9090/realms/yagatalk/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
 
-POST http://localhost:8082/api/chat/sessions
-Content-Type: application/json
+client_id=yagatalk-public-client&grant_type=password&username=author1&password=author1
 
-{
-     "contextId":"a1e7e851-505b-4b62-b4de-5a56d46ee843"
-}
-###
-POST http://localhost:8082/api/chat/sessions/38ec9db4-a797-4f9b-b756-17afa59605e7/messages
-Content-Type: application/json
-
-{
-  "text":"Привет, ну че как там с деньгами?!"
-}
+> {%
+    client.test("login is successful", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+        client.global.set("access_token", response.body["access_token"])
+    });
+%}
 
 ###
-
-GET http://localhost:8082/api/chat/sessions/38ec9db4-a797-4f9b-b756-17afa59605e7/messages
+GET http://localhost:8082/api/assistants
+Authorization: Bearer {{access_token}}
 
 ###
-
-GET http://localhost:8082/api/chat/sessions/38ec9db4-a797-4f9b-b756-17afa59605e7/messages?createdAfterMs=1688588282624

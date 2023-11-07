@@ -21,13 +21,25 @@ function Chat() {
             setError("Failed to resolve assistant id from current location path")
             return
         }
-        const lastSegmentOfPath = path.substring(path.lastIndexOf(BASE_PATH) + BASE_PATH.length + 1).replace("/", "")
-        if (!lastSegmentOfPath) {
-            setError("Failed to resolve assistant id from current location path: path is empty")
-            return
+        if (!BASE_PATH) {
+            const lastSegmentOfPath = path.replace("/embeddable-chat/", "")
+            if (!lastSegmentOfPath) {
+                setError("Failed to resolve assistant id from current location path: path is empty")
+                return
+            }
+            console.log("resolved assistant id=" + lastSegmentOfPath)
+            setAssistantId(lastSegmentOfPath)
         }
-        console.log("resolved assistant id=" + lastSegmentOfPath)
-        setAssistantId(lastSegmentOfPath)
+        else {
+            const lastSegmentOfPath = path.substring(path.lastIndexOf(BASE_PATH) + BASE_PATH.length + 1).replace("/", "")
+            if (!lastSegmentOfPath) {
+                setError("Failed to resolve assistant id from current location path: path is empty")
+                return
+            }
+            console.log("resolved assistant id=" + lastSegmentOfPath)
+            setAssistantId(lastSegmentOfPath)
+        }
+
     }, [assistantId])
 
     useEffect(() => {
@@ -70,7 +82,7 @@ function Chat() {
 
     const getHistory = async (chatSessionId) => {
         try {
-            const response = await fetch(`${BACKEND_URL}/api/chat/sessions/${chatSessionId}/messages`);
+            const response = await fetch(`${BACKEND_URL}/api/sessions/${chatSessionId}/messages`);
             if (response.ok) {
                 const data = await response.json();
                 const formattedMessages = data.map(({role, content}) => ({role, text: content}));
