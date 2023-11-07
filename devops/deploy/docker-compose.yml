@@ -27,7 +27,8 @@ services:
       DB_URL: "jdbc:postgresql://db-backend:5432/yaga-talk"
       DB_USERNAME: "admin"
       DB_PASSWORD: "admin"
-      KEYCLOAK_BACKEND_URL: "http://keycloak:8080"
+      JWT_ISSUER_URL: "${KEYCLOAK_URL:?}/realms/yagatalk"
+      JWKS_URL: "http://keycloak:8080/realms/yagatalk/protocol/openid-connect/certs"
       OPENAI_API_KEY: "${OPENAI_API_KEY:?}"
 
   db-keycloak:
