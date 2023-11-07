@@ -6,35 +6,40 @@ http {
 
     resolver 127.0.0.11 ipv6=off;
 
+    root /usr/share/nginx/html/;
+
     server {
-        listen 80;
+        listen 443 ssl;
+        ssl_certificate /etc/nginx/certs/51.250.96.167.crt;
+        ssl_certificate_key /etc/nginx/certs/51.250.96.167.key;
 
         set $backend_url ${BACKEND_HOST}:${BACKEND_PORT};
 
-        location /embeddable-chat/ {
-            proxy_pass http://$backend_url;
+        location /auth {
+            rewrite ^/auth/(.*)$ /$1 break;
+            proxy_pass http://keycloak:8080;
+
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Host $host;
+            proxy_set_header X-Forwarded-Server $host;
+            proxy_set_header X-Forwarded-Port 443;
+            proxy_set_header X-Forwarded-Proto $scheme;
         }
 
         location /api/ {
             proxy_pass http://$backend_url;
         }
 
-        location /js/ {
-            proxy_pass http://$backend_url;
+        location /embeddable-chat {
+            include /etc/nginx/mime.types;
+            try_files $uri $uri/ /embeddable-chat/index.html;
         }
 
-        location /css/ {
-            proxy_pass http://$backend_url;
-        }
-
-        location /images/ {
-            proxy_pass http://$backend_url;
-        }
-
-        # all requests that don't match the above will be routed to the root where the admin index.html is served
-        location / {
-            proxy_pass http://$backend_url;
-            rewrite ^(.*)$ / break;
+        location /author-console {
+            include /etc/nginx/mime.types;
+            try_files $uri $uri/ /author-console/index.html;
         }
     }
 }

@@ -6,11 +6,12 @@ import AssistantDetail from "./AssistantDetail";
 import NewAssistant from "./NewAssistant";
 import ChatHistoryTable from "./ChatHistoryTable";
 import EmbeddingInstruction from "./EmbeddingInstruction";
+import {BASE_PATH} from "./Config";
 
 
 function App() {
     return (
-        <BrowserRouter>
+        <BrowserRouter basename={BASE_PATH}>
             <Routes>
                 <Route path="/assistants/add" element={<NewAssistant/>}/>
                 <Route path="/assistants" element={<AssistantTable />}/>

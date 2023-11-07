@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 
 @RestController
 @RequestMapping("/api/sessions")
@@ -27,8 +29,13 @@ public class SessionController {
 
 
     @GetMapping("/current")
-    public ResponseEntity<IdDTO> getCurrentChatSession(
+    public ResponseEntity<?> getCurrentChatSession(
             @RequestParam(value = "assistantId") UUID assistantId) {
+        var assistant = chatSessionService.getAssistant(assistantId);
+        if (assistant.isEmpty()) {
+            return ResponseEntity.status(NOT_FOUND).body("assistant not found by id=" + assistantId);
+        }
+
         var id = chatSessionService.createChatSession(assistantId);
         return ResponseEntity.status(201).body(new IdDTO(id));
     }

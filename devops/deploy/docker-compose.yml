@@ -2,43 +2,68 @@ version: "3.5"
 
 services:
 
-  backend:
-    build:
-      context: .
-    container_name: backend-${ENVIRONMENT_NAME:?}
-    depends_on:
-      - keycloak
-      - dbpostgres
-    ports:
-      - "8082:8082"
-    environment:
-      DB_URL: "jdbc:postgresql://dbpostgres:5432/yaga-talk"
-      DB_USERNAME: "admin"
-      DB_PASSWORD: "admin"
-      OPENAI_API_KEY: "${OPENAI_API_KEY:?}"
-
-  dbpostgres:
+  db-backend:
     image: postgres:15-alpine
-    container_name: postgres-${ENVIRONMENT_NAME:?}
+    container_name: db-backend-${ENVIRONMENT_NAME:?}
     ports:
       - "5432:5432"
+    volumes:
+      - "../data/backend-data:/var/lib/postgresql/data"
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: yaga-talk
 
+  backend:
+    build:
+      context: backend
+    container_name: backend-${ENVIRONMENT_NAME:?}
+    depends_on:
+      - keycloak
+      - db-backend
+    ports:
+      - "8082:8082"
+    environment:
+      DB_URL: "jdbc:postgresql://db-backend:5432/yaga-talk"
+      DB_USERNAME: "admin"
+      DB_PASSWORD: "admin"
+      KEYCLOAK_BACKEND_URL: "http://keycloak:8080"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:?}"
+
+  db-keycloak:
+    image: postgres:15-alpine
+    container_name: db-keycloak-${ENVIRONMENT_NAME:?}
+    ports:
+      - "5433:5432"
+    volumes:
+      - "../data/keycloak-data:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_USER: ${KEYCLOAK_DB_USERNAME:?}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?}
+      POSTGRES_DB: keycloak
+
   keycloak:
     image: quay.io/keycloak/keycloak:22.0.3
     container_name: keycloak-${ENVIRONMENT_NAME:?}
-    ports:
-      - "9090:8080"
+    depends_on:
+      - db-keycloak
     environment:
       KEYCLOAK_ADMIN: "${KEYCLOAK_ADMIN_USER:?}"
       KEYCLOAK_ADMIN_PASSWORD: "${KEYCLOAK_ADMIN_PASSWORD:?}"
+      KC_DB: postgres
+      KC_DB_URL: "jdbc:postgresql://db-keycloak:5432/keycloak"
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USERNAME:?}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?}
+      KC_PROXY: edge
+      KC_HOSTNAME_PATH: /auth
+      KC_HOSTNAME_ADMIN_URL: ${KEYCLOAK_URL:?}
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      PROXY_ADDRESS_FORWARDING: true
+      KC_HOSTNAME_STRICT_BACKCHANNEL: false
     command:
       - 'start-dev'
       - '--health-enabled=true'
-      - '--auto-build'
       - '--http-enabled=true'
 
   nginx:
@@ -46,12 +71,16 @@ services:
     container_name: nginx-${ENVIRONMENT_NAME:?}
     ports:
       - "80:80"
+      - "443:443"
     environment:
       NGINX_ENVSUBST_OUTPUT_DIR: /etc/nginx
       BACKEND_HOST: backend-${ENVIRONMENT_NAME:?}
       BACKEND_PORT: 8082
     volumes:
-      - ./nginx:/etc/nginx
+      - ./nginx/templates:/etc/nginx/templates
+      - ./author-console:/usr/share/nginx/html/author-console
+      - ./web-component:/usr/share/nginx/html/embeddable-chat
+      - ../data/nginx-cert:/etc/nginx/certs
 
   maildev:
     image: docker.io/maildev/maildev:2.1.0

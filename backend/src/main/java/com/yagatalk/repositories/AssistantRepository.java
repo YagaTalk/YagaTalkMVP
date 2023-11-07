@@ -25,9 +25,8 @@ public class AssistantRepository {
     }
 
     public Optional<Assistant> get(UUID assistantId){
-        return Optional.ofNullable(jdbcTemplate.queryForObject("SELECT * FROM ASSISTANT WHERE id = ?",
-                extractAssistant,
-                assistantId));
+        var assistant = jdbcTemplate.query("SELECT * FROM assistant WHERE id =? ", extractAssistant, assistantId);
+        return assistant.isEmpty() ? Optional.empty() : Optional.of(assistant.get(0));
     }
 
     public String getContent(UUID assistantId) {
