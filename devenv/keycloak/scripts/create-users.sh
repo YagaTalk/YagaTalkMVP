@@ -14,6 +14,7 @@ function create_user() {
 }
 
 kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password admin
+
 create_user author1 author1 author
 create_user author2 author2 author
 create_user author3 author3 author

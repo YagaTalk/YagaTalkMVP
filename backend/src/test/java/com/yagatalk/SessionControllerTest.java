@@ -7,7 +7,7 @@ import com.yagatalk.config.ContainersEnvironment;
 import com.yagatalk.controllers.SessionController;
 import com.yagatalk.domain.Message;
 import com.yagatalk.openaiclient.Role;
-import com.yagatalk.repositories.ContextRepository;
+import com.yagatalk.repositories.AssistantRepository;
 import com.yagatalk.repositories.MessageRepository;
 import com.yagatalk.services.ChatSessionService;
 import org.junit.jupiter.api.*;
@@ -36,7 +36,8 @@ class SessionControllerTest  extends ContainersEnvironment {
 
     @Autowired MessageRepository messageRepository;
 
-    @Autowired ContextRepository contextRepository;
+    @Autowired
+    AssistantRepository assistantRepository;
 
     public WireMockServer wireMockServer;
 
@@ -69,7 +70,7 @@ class SessionControllerTest  extends ContainersEnvironment {
                 new SessionController.MessageFromUserDTO("Hello"));
         Assertions.assertEquals("201 CREATED", responseEntity.getStatusCode().toString());
         List<MessageDTO> expectedMessages = new ArrayList<>();
-        expectedMessages.add(new MessageDTO(Role.SYSTEM,contextRepository.getContent(UUID.fromString("a1e7e851-505b-4b62-b4de-5a56d46ee843"))));
+        expectedMessages.add(new MessageDTO(Role.SYSTEM, assistantRepository.getContent(UUID.fromString("a1e7e851-505b-4b62-b4de-5a56d46ee843"))));
         expectedMessages.add(new MessageDTO(Role.USER,"Hello"));
         expectedMessages.add(new MessageDTO(Role.ASSISTANT,"Hi!"));
 

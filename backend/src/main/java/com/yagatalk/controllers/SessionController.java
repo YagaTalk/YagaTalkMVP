@@ -12,7 +12,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 
 @RestController
-@RequestMapping("/api/chat/")
+@RequestMapping("/api/sessions")
 public class SessionController {
     private final ChatSessionService chatSessionService;
 
@@ -20,59 +20,42 @@ public class SessionController {
         this.chatSessionService = chatSessionService;
     }
 
-    @PostMapping("/context")
-    public ResponseEntity<String> createContext(@RequestBody ContextDTO contextDTO) {
-        var id = chatSessionService.createContext(contextDTO.content,contextDTO.name);
-        return ResponseEntity.status(201).body(new IdDTO(id).toString());
+
+    @GetMapping()
+    public List<ChatSessionService.ChatSessionDTO> getChatSession(
+            @RequestParam(value = "assistantId") UUID assistantId) {
+        return chatSessionService.getAllChatSessionByAssistantID(assistantId);
     }
 
-    @GetMapping("/context/{contextId}")
-    public Optional<ChatSessionService.ContextDTOWithContent> getContext(@PathVariable("contextId") UUID contextId){
-        return chatSessionService.getContext(contextId);
-    }
 
-    private record ContextDTO(String content,String name){}
-
-    @GetMapping("/contexts")
-    public List<ChatSessionService.ContextDTO> getAllContexts(
-            @RequestParam(value = "asc_sort", required = false) Optional<Boolean> ascSort,
-            @RequestParam(name = "searchNameQuery", required = false) Optional<String> searchNameQuery,
-            @RequestParam(name = "searchDateQuery", required = false) Optional<String> searchDateQuery) {
-        return chatSessionService.getAllContexts(ascSort, searchNameQuery,searchDateQuery);
-    }
-
-    @GetMapping("/context/{contextId}/currentSession")
+    @GetMapping("/current")
     public ResponseEntity<?> getCurrentChatSession(
-            @PathVariable("contextId") UUID contextID) {
-        var context = chatSessionService.getContext(contextID);
-        if (context.isEmpty()) {
-            return ResponseEntity.status(NOT_FOUND).body("context not found by id=" + contextID);
+            @RequestParam(value = "assistantId") UUID assistantId) {
+        var assistant = chatSessionService.getAssistant(assistantId);
+        if (assistant.isEmpty()) {
+            return ResponseEntity.status(NOT_FOUND).body("assistant not found by id=" + assistantId);
         }
-        var id = chatSessionService.createChatSession(contextID);
+
+        var id = chatSessionService.createChatSession(assistantId);
         return ResponseEntity.status(201).body(new IdDTO(id));
     }
 
-    @GetMapping("/context/{contextId}/sessions")
-    public List<ChatSessionService.ChatSessionDTO> getChatSession(@PathVariable("contextId") UUID contextID) {
-        return chatSessionService.getAllChatSessionByContextID(contextID);
-    }
-
-    private record IdDTO(UUID id){
+    private record IdDTO(UUID id) {
         @Override
         public String toString() {
             return "{" +
-                    "\"id=\"" +id + "\"" +
+                    "\"id=\"" + id + "\"" +
                     '}';
         }
     }
 
-    public record ChatSessionDTO(UUID contextId) {
+    public record ChatSessionDTO(UUID assistantId) {
     }
 
 
-    @PostMapping("/sessions/{chatSessionId}/messages")
+    @PostMapping("/{chatSessionId}/messages")
     public ResponseEntity<String> sendMessage(@PathVariable("chatSessionId") UUID chatSessionId,
-                                                  @RequestBody MessageFromUserDTO message) {
+                                              @RequestBody MessageFromUserDTO message) {
         chatSessionService.createUserMessage(message.text(), chatSessionId);
         return ResponseEntity.status(201).body("{ ok }");
     }
@@ -81,10 +64,10 @@ public class SessionController {
     }
 
 
-    @GetMapping("/sessions/{chatSessionId}/messages")
+    @GetMapping("/{chatSessionId}/messages")
     public List<ChatSessionService.MessageDTO> getAllMessages(@PathVariable("chatSessionId") UUID chatSessionId,
                                                               @RequestParam(value = "createdAfterMs", required = false) Optional<Long> ms) {
-     return chatSessionService.getAllMessagesByChatSessionId(chatSessionId, ms);
+        return chatSessionService.getAllMessagesByChatSessionId(chatSessionId, ms);
 
     }
 }

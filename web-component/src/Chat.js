@@ -4,7 +4,7 @@ import {BACKEND_URL, BASE_PATH} from "./Config";
 
 
 function Chat() {
-    const [contextId, setContextId] = useState(null)
+    const [assistantId, setAssistantId] = useState(null)
     const [error, setError] = useState(null)
     const [sessionId, setSessionId] = useState(null)
     const chatBodyRef = useRef(null);
@@ -12,30 +12,42 @@ function Chat() {
     const [messages, setMessages] = useState([]);
     const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
 
-    useEffect(function resolveContextId() {
-        if (!!contextId) return
+    useEffect(function resolveAssistantId() {
+        if (!!assistantId) return
 
         const path = window.location.pathname
-        console.log("resolving context id from path=" + path)
+        console.log("resolving assistant id from path=" + path)
         if (!path) {
-            setError("Failed to resolve context id from current location path")
+            setError("Failed to resolve assistant id from current location path")
             return
         }
-        const lastSegmentOfPath = path.substring(path.lastIndexOf(BASE_PATH) + BASE_PATH.length + 1).replace("/", "")
-        if (!lastSegmentOfPath) {
-            setError("Failed to resolve context id from current location path: path is empty")
-            return
+        if (!BASE_PATH) {
+            const lastSegmentOfPath = path.replace("/embeddable-chat/", "")
+            if (!lastSegmentOfPath) {
+                setError("Failed to resolve assistant id from current location path: path is empty")
+                return
+            }
+            console.log("resolved assistant id=" + lastSegmentOfPath)
+            setAssistantId(lastSegmentOfPath)
         }
-        console.log("resolved context id=" + lastSegmentOfPath)
-        setContextId(lastSegmentOfPath)
-    }, [contextId])
+        else {
+            const lastSegmentOfPath = path.substring(path.lastIndexOf(BASE_PATH) + BASE_PATH.length + 1).replace("/", "")
+            if (!lastSegmentOfPath) {
+                setError("Failed to resolve assistant id from current location path: path is empty")
+                return
+            }
+            console.log("resolved assistant id=" + lastSegmentOfPath)
+            setAssistantId(lastSegmentOfPath)
+        }
+
+    }, [assistantId])
 
     useEffect(() => {
-        if (!contextId) return
+        if (!assistantId) return
         if (!!sessionId) return
 
-        getChatSession(contextId)
-    }, [sessionId, contextId])
+        getChatSession(assistantId)
+    }, [sessionId, assistantId])
 
     useEffect(() => {
         if (!sessionId) return
@@ -54,9 +66,9 @@ function Chat() {
         }
     }, [messages]);
 
-    const getChatSession = async (contextId) => {
+    const getChatSession = async (assistantId) => {
         try {
-            const response = await fetch(`${BACKEND_URL}/api/chat/context/${contextId}/currentSession`);
+            const response = await fetch(`${BACKEND_URL}/api/sessions/current?assistantId=${assistantId}`);
             if (response.ok) {
                 const body = await response.json()
                 setSessionId(body.id);
@@ -70,7 +82,7 @@ function Chat() {
 
     const getHistory = async (chatSessionId) => {
         try {
-            const response = await fetch(`${BACKEND_URL}/api/chat/sessions/${chatSessionId}/messages`);
+            const response = await fetch(`${BACKEND_URL}/api/sessions/${chatSessionId}/messages`);
             if (response.ok) {
                 const data = await response.json();
                 const formattedMessages = data.map(({role, content}) => ({role, text: content}));
@@ -92,7 +104,7 @@ function Chat() {
 
     const sendUserMessageToServer = async (userInput, chatSessionId) => {
         try {
-            const response = await fetch(`${BACKEND_URL}/api/chat/sessions/${chatSessionId}/messages`, {
+            const response = await fetch(`${BACKEND_URL}/api/sessions/${chatSessionId}/messages`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
