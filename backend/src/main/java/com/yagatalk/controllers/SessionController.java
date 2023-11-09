@@ -31,7 +31,7 @@ public class SessionController {
     @GetMapping("/current")
     public ResponseEntity<?> getCurrentChatSession(
             @RequestParam(value = "assistantId") UUID assistantId) {
-        var assistant = chatSessionService.getAssistant(assistantId);
+        var assistant = chatSessionService.getAssistantById(assistantId);
         if (assistant.isEmpty()) {
             return ResponseEntity.status(NOT_FOUND).body("assistant not found by id=" + assistantId);
         }

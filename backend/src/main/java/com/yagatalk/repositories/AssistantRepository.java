@@ -20,12 +20,17 @@ public class AssistantRepository {
     }
 
     public void save(Assistant assistant) {
-        jdbcTemplate.update("INSERT INTO assistant values (?,?,?,?)",
-                assistant.getId(), assistant.getContent(), Timestamp.from(assistant.getCreatedTime()), assistant.getName());
+        jdbcTemplate.update("INSERT INTO assistant values (?,?,?,?,?)",
+                assistant.getId(), assistant.getContent(), Timestamp.from(assistant.getCreatedTime()), assistant.getName(), assistant.getAuthorId());
     }
 
-    public Optional<Assistant> get(UUID assistantId){
+    public Optional<Assistant> getByAdmin(UUID assistantId) {
         var assistant = jdbcTemplate.query("SELECT * FROM assistant WHERE id =? ", extractAssistant, assistantId);
+        return assistant.isEmpty() ? Optional.empty() : Optional.of(assistant.get(0));
+    }
+
+    public Optional<Assistant> getByAuthor(UUID assistantId, UUID authorId) {
+        var assistant = jdbcTemplate.query("SELECT * FROM assistant WHERE id =? and author_id=?", extractAssistant, assistantId, authorId);
         return assistant.isEmpty() ? Optional.empty() : Optional.of(assistant.get(0));
     }
 
@@ -36,7 +41,7 @@ public class AssistantRepository {
     }
 
     public Stream<Assistant> getAllAssistants(String ASC, String searchNameQuery) {
-        return jdbcTemplate.queryForStream("SELECT * FROM ASSISTANT WHERE name LIKE ? ORDER BY created_time "+ASC,
+        return jdbcTemplate.queryForStream("SELECT * FROM ASSISTANT WHERE name LIKE ? ORDER BY created_time " + ASC,
                 extractAssistant,
                 "%" + searchNameQuery + "%");
     }
@@ -44,18 +49,37 @@ public class AssistantRepository {
     public Stream<Assistant> getAllAssistantsWithSearchByDate(String ASC, String searchNameQuery, String searchDateQuery) {
         return jdbcTemplate.queryForStream("SELECT * FROM ASSISTANT WHERE name LIKE ? " +
                         "AND created_time >= ?::timestamp\n" +
-                        "AND created_time <  ?::timestamp ORDER BY created_time "+ASC,
+                        "AND created_time <  ?::timestamp ORDER BY created_time " + ASC,
                 extractAssistant,
                 "%" + searchNameQuery + "%",
-                searchDateQuery +" 00:00:00",
-                searchDateQuery +" 23:59:59.999999");
+                searchDateQuery + " 00:00:00",
+                searchDateQuery + " 23:59:59.999999");
+    }
+
+    public Stream<Assistant> getAllAssistantsByAuthorId(String ASC, String searchNameQuery, UUID authorId) {
+        return jdbcTemplate.queryForStream("SELECT * FROM ASSISTANT WHERE name LIKE ? AND author_id=? ORDER BY created_time " + ASC,
+                extractAssistant,
+                "%" + searchNameQuery + "%",
+                authorId);
+    }
+
+    public Stream<Assistant> getAllAssistantsByAuthorIdWithSearchByDate(String ASC, String searchNameQuery, String searchDateQuery, UUID authorId) {
+        return jdbcTemplate.queryForStream("SELECT * FROM ASSISTANT WHERE name LIKE ? AND author_id=? " +
+                        "AND created_time >= ?::timestamp\n" +
+                        "AND created_time <  ?::timestamp ORDER BY created_time " + ASC,
+                extractAssistant,
+                authorId,
+                "%" + searchNameQuery + "%",
+                searchDateQuery + " 00:00:00",
+                searchDateQuery + " 23:59:59.999999");
     }
 
     private static final RowMapper<Assistant> extractAssistant =
-            (rs, rn) -> new Assistant(UUID.fromString(
-                    rs.getString("id")),
+            (rs, rn) -> new Assistant(
+                    UUID.fromString(rs.getString("id")),
                     rs.getString("content"),
                     rs.getTimestamp("created_time").toInstant(),
-                    rs.getString("name")
+                    rs.getString("name"),
+                    UUID.fromString(rs.getString("author_id"))
             );
 }

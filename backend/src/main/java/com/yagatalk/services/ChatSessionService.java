@@ -36,8 +36,8 @@ public class ChatSessionService {
     }
 
     @Transactional
-    public UUID createAssistant(String content, String name) {
-        var assistant = new Assistant(UUIDGenerator.generateUUID(), content, Instant.now(), name);
+    public UUID createAssistant(String content, String name, UUID assistantId) {
+        var assistant = new Assistant(UUIDGenerator.generateUUID(), content, Instant.now(), name, assistantId);
         assistantRepository.save(assistant);
         return assistant.getId();
     }
@@ -87,11 +87,16 @@ public class ChatSessionService {
         return new MessageDTO(message.getRole(), message.getCreatedTime().toEpochMilli(), message.getContent());
     }
 
-    public Optional<AssistantDTOWithContent> getAssistant(UUID assistantId){
-        return assistantRepository.get(assistantId).map(this::convertToAssistantDTOWithContent);
+    public Optional<AssistantDTOWithContent> getAssistantById(UUID assistantId) {
+        return assistantRepository.getByAdmin(assistantId).map(this::convertToAssistantDTOWithContent);
     }
 
-    public record AssistantDTOWithContent(String content, Instant createdTime, String name){}
+    public Optional<AssistantDTOWithContent> getAssistantByAuthor(UUID assistantId, UUID authorId) {
+        return assistantRepository.getByAuthor(assistantId, authorId).map(this::convertToAssistantDTOWithContent);
+    }
+
+    public record AssistantDTOWithContent(String content, Instant createdTime, String name) {
+    }
 
     private AssistantDTOWithContent convertToAssistantDTOWithContent(Assistant assistant) {
         return new AssistantDTOWithContent(assistant.getContent(), assistant.getCreatedTime(), assistant.getName());
@@ -100,18 +105,35 @@ public class ChatSessionService {
     public List<AssistantDTO> getAllAssistants(Optional<Boolean> ascSort,
                                                Optional<String> searchNameQuery,
                                                Optional<String> searchDateQuery) {
-        if (ascSort.isPresent() && Boolean.TRUE.equals(ascSort.get())){
-            if (searchDateQuery.isPresent() && !searchDateQuery.get().equals("")){
-                return assistantRepository.getAllAssistantsWithSearchByDate("ASC",search(searchNameQuery),searchDateQuery.get()).map(this::convertToAssistantDTO).toList();
+        if (ascSort.isPresent() && Boolean.TRUE.equals(ascSort.get())) {
+            if (searchDateQuery.isPresent() && !searchDateQuery.get().equals("")) {
+                return assistantRepository.getAllAssistantsWithSearchByDate("ASC", search(searchNameQuery), searchDateQuery.get()).map(this::convertToAssistantDTO).toList();
             }
-            return assistantRepository.getAllAssistants("ASC",search(searchNameQuery)).map(this::convertToAssistantDTO).toList();
+            return assistantRepository.getAllAssistants("ASC", search(searchNameQuery)).map(this::convertToAssistantDTO).toList();
         }
-        if (searchDateQuery.isPresent() && !searchDateQuery.get().equals("")){
-            return assistantRepository.getAllAssistantsWithSearchByDate("DESC",search(searchNameQuery),searchDateQuery.get()).map(this::convertToAssistantDTO).toList();
+        if (searchDateQuery.isPresent() && !searchDateQuery.get().equals("")) {
+            return assistantRepository.getAllAssistantsWithSearchByDate("DESC", search(searchNameQuery), searchDateQuery.get()).map(this::convertToAssistantDTO).toList();
         }
-        return assistantRepository.getAllAssistants("DESC",search(searchNameQuery)).map(this::convertToAssistantDTO).toList();
+        return assistantRepository.getAllAssistants("DESC", search(searchNameQuery)).map(this::convertToAssistantDTO).toList();
     }
-    private String search(Optional<String> searchQuery){
+
+    public List<AssistantDTO> getAllAuthorAssistants(Optional<Boolean> ascSort,
+                                                     Optional<String> searchNameQuery,
+                                                     Optional<String> searchDateQuery,
+                                                     UUID authorId) {
+        if (ascSort.isPresent() && Boolean.TRUE.equals(ascSort.get())) {
+            if (searchDateQuery.isPresent() && !searchDateQuery.get().equals("")) {
+                return assistantRepository.getAllAssistantsByAuthorIdWithSearchByDate("ASC", search(searchNameQuery), searchDateQuery.get(), authorId).map(this::convertToAssistantDTO).toList();
+            }
+            return assistantRepository.getAllAssistantsByAuthorId("ASC", search(searchNameQuery), authorId).map(this::convertToAssistantDTO).toList();
+        }
+        if (searchDateQuery.isPresent() && !searchDateQuery.get().equals("")) {
+            return assistantRepository.getAllAssistantsByAuthorIdWithSearchByDate("DESC", search(searchNameQuery), searchDateQuery.get(), authorId).map(this::convertToAssistantDTO).toList();
+        }
+        return assistantRepository.getAllAssistantsByAuthorId("DESC", search(searchNameQuery), authorId).map(this::convertToAssistantDTO).toList();
+    }
+
+    private String search(Optional<String> searchQuery) {
         return searchQuery.orElse("");
     }
 

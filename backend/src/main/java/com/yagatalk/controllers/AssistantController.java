@@ -2,12 +2,14 @@ package com.yagatalk.controllers;
 
 import com.yagatalk.services.ChatSessionService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+
+import static com.yagatalk.utill.JwtUtil.*;
+
 
 @RestController
 @RequestMapping("/api/assistants")
@@ -20,24 +22,46 @@ public class AssistantController {
     }
 
     @GetMapping()
-    public List<ChatSessionService.AssistantDTO> getAllAssistants(Principal principal,
-                                                                  @RequestParam(value = "asc_sort", required = false) Optional<Boolean> ascSort,
-                                                                  @RequestParam(name = "searchNameQuery", required = false) Optional<String> searchNameQuery,
-                                                                  @RequestParam(name = "searchDateQuery", required = false) Optional<String> searchDateQuery) {
-        return chatSessionService.getAllAssistants(ascSort, searchNameQuery, searchDateQuery);
+    public ResponseEntity<?> getAllAssistants(@AuthenticationPrincipal Jwt principal,
+                                              @RequestParam(value = "asc_sort", required = false) Optional<Boolean> ascSort,
+                                              @RequestParam(name = "searchNameQuery", required = false) Optional<String> searchNameQuery,
+                                              @RequestParam(name = "searchDateQuery", required = false) Optional<String> searchDateQuery) {
+        if (hasRoleAdmin(principal)) {
+            return ResponseEntity.status(200).body(chatSessionService.
+                    getAllAssistants(ascSort, searchNameQuery, searchDateQuery));
+
+        }
+
+        if (hasRoleAuthor(principal)) {
+            UUID authorId = getAuthorId(principal);
+            return ResponseEntity.status(200).body(chatSessionService.
+                    getAllAuthorAssistants(ascSort, searchNameQuery, searchDateQuery, authorId));
+        }
+        return ResponseEntity.status(401).body("Not authorized");
     }
 
 
     @GetMapping("/{id}")
-    public Optional<ChatSessionService.AssistantDTOWithContent> getAssistant(Principal principal, @PathVariable("id") UUID assistantId) {
+    public ResponseEntity<?> getAssistant(@AuthenticationPrincipal Jwt principal, @PathVariable("id") UUID assistantId) {
+        if (hasRoleAdmin(principal)) {
+            return ResponseEntity.status(200).body(chatSessionService.getAssistantById(assistantId));
 
-        return chatSessionService.getAssistant(assistantId);
+        }
+        if (hasRoleAuthor(principal)) {
+            UUID authorId = getAuthorId(principal);
+            return ResponseEntity.status(200).body(chatSessionService.getAssistantByAuthor(assistantId, authorId));
+        }
+
+        return ResponseEntity.status(401).body("Not authorized");
     }
-    
+
 
     @PostMapping()
-    public ResponseEntity<String> createAssistant(Principal principal, @RequestBody AssistantDTO assistantDTO) {
-        var id = chatSessionService.createAssistant(assistantDTO.content, assistantDTO.name);
+    public ResponseEntity<String> createAssistant(@AuthenticationPrincipal Jwt principal, @RequestBody AssistantDTO assistantDTO) {
+        var authorId = getAuthorId(principal);
+        var id = chatSessionService.createAssistant(assistantDTO.content, assistantDTO.name, authorId);
+
+
         return ResponseEntity.status(201).body(new IdDTO(id).toString());
     }
 
