@@ -24,7 +24,7 @@ public class AssistantRepository {
                 assistant.getId(), assistant.getContent(), Timestamp.from(assistant.getCreatedTime()), assistant.getName(), assistant.getAuthorId());
     }
 
-    public Optional<Assistant> getByAdmin(UUID assistantId) {
+    public Optional<Assistant> getById(UUID assistantId) {
         var assistant = jdbcTemplate.query("SELECT * FROM assistant WHERE id =? ", extractAssistant, assistantId);
         return assistant.isEmpty() ? Optional.empty() : Optional.of(assistant.get(0));
     }

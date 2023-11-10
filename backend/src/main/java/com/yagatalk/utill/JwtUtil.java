@@ -23,7 +23,10 @@ public class JwtUtil {
     }
 
     public static UUID getAuthorId(Jwt jwt) {
-        return UUID.fromString(jwt.getClaim("sub"));
+        if (hasRoleAdmin(jwt) || (hasRoleAuthor(jwt))) {
+            return UUID.fromString(jwt.getClaim("sub"));
+        }
+        throw new InvalidAuthorizationException("User does not have required roles");
     }
 
 }

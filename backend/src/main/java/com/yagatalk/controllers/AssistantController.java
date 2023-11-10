@@ -21,7 +21,7 @@ public class AssistantController {
         this.chatSessionService = chatSessionService;
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<?> getAllAssistants(@AuthenticationPrincipal Jwt principal,
                                               @RequestParam(value = "asc_sort", required = false) Optional<Boolean> ascSort,
                                               @RequestParam(name = "searchNameQuery", required = false) Optional<String> searchNameQuery,
@@ -29,7 +29,6 @@ public class AssistantController {
         if (hasRoleAdmin(principal)) {
             return ResponseEntity.status(200).body(chatSessionService.
                     getAllAssistants(ascSort, searchNameQuery, searchDateQuery));
-
         }
 
         if (hasRoleAuthor(principal)) {
@@ -39,7 +38,6 @@ public class AssistantController {
         }
         return ResponseEntity.status(401).body("Not authorized");
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getAssistant(@AuthenticationPrincipal Jwt principal, @PathVariable("id") UUID assistantId) {
@@ -55,8 +53,7 @@ public class AssistantController {
         return ResponseEntity.status(401).body("Not authorized");
     }
 
-
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<String> createAssistant(@AuthenticationPrincipal Jwt principal, @RequestBody AssistantDTO assistantDTO) {
         var authorId = getAuthorId(principal);
         var id = chatSessionService.createAssistant(assistantDTO.content, assistantDTO.name, authorId);
