@@ -33,7 +33,7 @@ public class SessionController {
 
         }
         if (hasRoleAuthor(principal)) {
-            UUID authorId = getAuthorId(principal);
+            UUID authorId = getUserId(principal);
             return ResponseEntity.status(200).body(chatSessionService.getAllChatSessionsByAssistantIdAndAuthorId(assistantId, authorId));
         }
 

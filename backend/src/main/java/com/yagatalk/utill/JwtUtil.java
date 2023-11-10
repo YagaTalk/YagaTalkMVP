@@ -22,8 +22,8 @@ public class JwtUtil {
         return realmRoles.contains(role);
     }
 
-    public static UUID getAuthorId(Jwt jwt) {
-        if (hasRoleAdmin(jwt) || (hasRoleAuthor(jwt))) {
+    public static UUID getUserId(Jwt jwt) {
+        if (hasRoleAdmin(jwt) || hasRoleAuthor(jwt)) {
             return UUID.fromString(jwt.getClaim("sub"));
         }
         throw new InvalidAuthorizationException("User does not have required roles");

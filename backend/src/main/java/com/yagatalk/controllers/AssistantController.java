@@ -32,7 +32,7 @@ public class AssistantController {
         }
 
         if (hasRoleAuthor(principal)) {
-            UUID authorId = getAuthorId(principal);
+            UUID authorId = getUserId(principal);
             return ResponseEntity.status(200).body(chatSessionService.
                     getAllAuthorAssistants(ascSort, searchNameQuery, searchDateQuery, authorId));
         }
@@ -46,7 +46,7 @@ public class AssistantController {
 
         }
         if (hasRoleAuthor(principal)) {
-            UUID authorId = getAuthorId(principal);
+            UUID authorId = getUserId(principal);
             return ResponseEntity.status(200).body(chatSessionService.getAssistantByAuthor(assistantId, authorId));
         }
 
@@ -55,7 +55,7 @@ public class AssistantController {
 
     @PostMapping
     public ResponseEntity<String> createAssistant(@AuthenticationPrincipal Jwt principal, @RequestBody AssistantDTO assistantDTO) {
-        var authorId = getAuthorId(principal);
+        var authorId = getUserId(principal);
         var id = chatSessionService.createAssistant(assistantDTO.content, assistantDTO.name, authorId);
 
 
