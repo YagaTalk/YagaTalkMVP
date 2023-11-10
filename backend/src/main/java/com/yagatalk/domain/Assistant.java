@@ -10,11 +10,14 @@ public class Assistant {
     private final Instant createdTime;
     private final String name;
 
-    public Assistant(UUID id, String content, Instant createdTime, String name) {
+    private final UUID authorId;
+
+    public Assistant(UUID id, String content, Instant createdTime, String name, UUID authorId) {
         this.id = id;
         this.name = name;
         this.createdTime = createdTime;
         this.content = content;
+        this.authorId = authorId;
     }
 
     public UUID getId() {
@@ -31,6 +34,10 @@ public class Assistant {
 
     public Instant getCreatedTime() {
         return createdTime;
+    }
+
+    public UUID getAuthorId() {
+        return authorId;
     }
 }
 

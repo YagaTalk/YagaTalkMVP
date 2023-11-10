@@ -2,12 +2,15 @@ package com.yagatalk.controllers;
 
 import com.yagatalk.services.ChatSessionService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.yagatalk.utill.JwtUtil.*;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 
@@ -21,17 +24,27 @@ public class SessionController {
     }
 
 
-    @GetMapping()
-    public List<ChatSessionService.ChatSessionDTO> getChatSession(
+    @GetMapping
+    public ResponseEntity<?> getChatSession(
+            @AuthenticationPrincipal Jwt principal,
             @RequestParam(value = "assistantId") UUID assistantId) {
-        return chatSessionService.getAllChatSessionByAssistantID(assistantId);
+        if (hasRoleAdmin(principal)) {
+            return ResponseEntity.status(200).body(chatSessionService.getAllChatSessionByAssistantId(assistantId));
+
+        }
+        if (hasRoleAuthor(principal)) {
+            UUID authorId = getUserId(principal);
+            return ResponseEntity.status(200).body(chatSessionService.getAllChatSessionsByAssistantIdAndAuthorId(assistantId, authorId));
+        }
+
+        return ResponseEntity.status(401).body("Not authorized");
     }
 
 
     @GetMapping("/current")
     public ResponseEntity<?> getCurrentChatSession(
             @RequestParam(value = "assistantId") UUID assistantId) {
-        var assistant = chatSessionService.getAssistant(assistantId);
+        var assistant = chatSessionService.getAssistantById(assistantId);
         if (assistant.isEmpty()) {
             return ResponseEntity.status(NOT_FOUND).body("assistant not found by id=" + assistantId);
         }
