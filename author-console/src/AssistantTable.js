@@ -7,8 +7,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {format} from "date-fns";
 import Button from 'react-bootstrap/Button';
 import {BACKEND_URL} from "./Config";
-import {AuthContext} from "react-oauth2-code-pkce";
 import axios from "axios";
+import {AuthContext, keycloak} from "./auth";
 
 
 function AssistantTable() {
@@ -30,7 +30,11 @@ function AssistantTable() {
         return '';
     };
 
-    const {token} = useContext(AuthContext);
+    const { token, userInfo }  = useContext(AuthContext);
+    console.log("token is", token)
+    // console.log("authenticated is", keycloak.authenticated)
+    // console.log("keycloak is", JSON.stringify(keycloak))
+    console.log("userInfo is", userInfo)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -66,6 +70,8 @@ function AssistantTable() {
     }, [token, sortByDate, searchTerm, selectedDate]);
     return (
         <div className="assistant-table-page">
+            <h1>UserInfo</h1>
+            <p>UserId: {JSON.stringify(userInfo)}</p>
             <div className="chat-header">
                 YagaTalk
             </div>
