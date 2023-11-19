@@ -3,8 +3,8 @@ import {useParams} from "react-router-dom";
 import {format} from "date-fns";
 import {Modal} from "react-bootstrap";
 import {BACKEND_URL} from "./Config";
-import {AuthContext} from "react-oauth2-code-pkce";
 import axios from "axios";
+import {AuthContext} from "./auth";
 
 
 function ChatHistoryTable() {
