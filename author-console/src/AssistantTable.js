@@ -8,7 +8,7 @@ import {format} from "date-fns";
 import Button from 'react-bootstrap/Button';
 import {BACKEND_URL} from "./Config";
 import axios from "axios";
-import {AuthContext, keycloak} from "./auth";
+import {AuthContext} from "./auth";
 import SettingsWindow from "./SettingsWindow";
 
 
