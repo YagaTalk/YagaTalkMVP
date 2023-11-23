@@ -130,6 +130,12 @@ function Chat() {
         }
     }, [shouldScrollToBottom]);
 
+    const handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+            renderUserMessage();
+        }
+    };
+
     return <>
         {error && <h1>{error}</h1>}
         {!error && sessionId && (
@@ -149,7 +155,14 @@ function Chat() {
                 </div>
                 <div className="chat-input">
                     <div className="input-sec">
-                        <input ref={txtInputRef} type="text" id="txtInput" placeholder="Let's talk!" autoFocus/>
+                        <textarea
+                            ref={txtInputRef}
+                            type="text"
+                            id="txtInput"
+                            placeholder="Let's talk!"
+                            autoFocus
+                            onKeyDown={handleKeyPress}
+                        />
                     </div>
                     <button onClick={renderUserMessage} className="send">
                         <img src={`${BASE_PATH}/images/send.svg`} alt="send"/>
