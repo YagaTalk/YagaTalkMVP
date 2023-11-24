@@ -51,7 +51,6 @@ function AssistantDetail() {
 
     return (
         <div className="assistant-page">
-            <Button onClick={authContext.logout}></Button>
             <div className="chat-header">
                 YagaTalk
             </div>
