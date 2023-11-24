@@ -1,15 +1,24 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import './SettingsWindow.css';
 import {Button} from "react-bootstrap";
-const SettingsWindow = () => {
+import {AuthContext} from "./auth";
+
+const SettingsWindow = ({userName}) => {
+    const authContext = useContext(AuthContext);
+    const handleLogout = async () => {
+        await authContext.logout();
+    };
+
     return (
         <div className="settings-window">
             <div className="user-name">
-                <h3 className="user-name">Admin Name</h3>
+                <h3 className="user-name">{userName}</h3>
             </div>
             <div className="buttons-container">
                 <Button variant="primary">Change Password</Button>
-                <Button variant="primary">Log Out</Button>
+                <Button variant="primary" onClick={handleLogout}>
+                    Log Out
+                </Button>
             </div>
         </div>
     );

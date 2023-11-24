@@ -7,8 +7,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {format} from "date-fns";
 import Button from 'react-bootstrap/Button';
 import {BACKEND_URL} from "./Config";
-import {AuthContext} from "react-oauth2-code-pkce";
 import axios from "axios";
+import {AuthContext} from "./auth";
+import SettingsWindow from "./SettingsWindow";
 
 
 function AssistantTable() {
@@ -18,6 +19,13 @@ function AssistantTable() {
     const [searchTerm, setSearchTerm] = useState('');
     const navigate = useNavigate();
     const [selectedDate, setSelectedDate] = useState(null);
+    const [showSettings, setShowSettings] = useState(false);
+    const {token, userInfo} = useContext(AuthContext);
+    const preferredUsername = JSON.parse(JSON.stringify(userInfo)).preferred_username;
+
+    const handleSettingsClick = () => {
+        setShowSettings(!showSettings);
+    };
 
     const handleRowClick = (assistantId) => {
         navigate('/assistants/' + assistantId);
@@ -30,7 +38,7 @@ function AssistantTable() {
         return '';
     };
 
-    const {token} = useContext(AuthContext);
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -68,6 +76,9 @@ function AssistantTable() {
         <div className="assistant-table-page">
             <div className="chat-header">
                 YagaTalk
+                <div className="settings-icon" onClick={handleSettingsClick}>
+                    <img src="/images/settings.png" alt="Settings"/>
+                </div>
             </div>
 
             <div className="input-container">
@@ -124,6 +135,12 @@ function AssistantTable() {
                     </div>
                 ))}
             </div>
+            {showSettings && (
+                <SettingsWindow
+                    userName={preferredUsername}
+                    onClose={() => setShowSettings(false)}
+                />
+            )}
         </div>
     );
 }

@@ -4,8 +4,8 @@ import {Button, Modal, Table} from "react-bootstrap";
 import { format } from "date-fns";
 import './AssistantDetail.css';
 import {BACKEND_URL} from "./Config";
-import {AuthContext} from "react-oauth2-code-pkce";
 import axios from "axios";
+import {AuthContext} from "./auth";
 
 function AssistantDetail() {
     const { assistantId } = useParams();
@@ -14,12 +14,12 @@ function AssistantDetail() {
     const navigate  = useNavigate();
 
 
-    const { token } = useContext(AuthContext);
+    const authContext = useContext(AuthContext);
 
     useEffect(() => {
         const fetchData = async () => {
             const url = `${BACKEND_URL}/api/assistants/${assistantId}`;
-            const headers = { 'Authorization': `Bearer ${token}` };
+            const headers = { 'Authorization': `Bearer ${authContext.token}` };
 
             try {
                 const response = await axios.get(url, { headers });
@@ -39,7 +39,7 @@ function AssistantDetail() {
         };
 
         fetchData();
-    }, [token, assistantId]);
+    }, [authContext.token, assistantId]);
 
     const goToChatHistory = () => {
         navigate('/assistants/'+assistantId+'/chatHistory');
@@ -55,7 +55,6 @@ function AssistantDetail() {
                 YagaTalk
             </div>
             <div className="action-buttons">
-
                 <Button className="action-button" onClick={() => setShowModal(true)}>Test Chat</Button>
                 <Button className="action-button">Archive Assistant</Button>
                 <Button className="action-button" onClick={goToEmbeddingInstruction}>Embedding Instruction</Button>

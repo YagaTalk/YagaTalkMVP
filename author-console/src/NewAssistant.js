@@ -3,7 +3,7 @@ import React, { useContext, useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
 import { BACKEND_URL } from './Config';
-import { AuthContext } from 'react-oauth2-code-pkce';
+import {AuthContext} from "./auth";
 
 function NewAssistant() {
     const [name, setName] = useState('');
