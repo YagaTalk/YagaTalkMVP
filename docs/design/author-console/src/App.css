@@ -1,0 +1,40 @@
+.App {
+    display: flex;
+    flex-flow: column nowrap;
+    background-color: #383838;
+    /*overflow: hidden;*/
+    /*height: 100%;*/
+}
+
+.Header {
+    flex: 1;
+}
+
+.Body {
+    flex: 20;
+    display: flex;
+    flex-flow: row nowrap;
+    height: 100%;
+}
+
+.LeftPanel {
+    flex: 1;
+}
+
+.ConsoleBody {
+    flex: 4;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    padding: 15px;
+    box-shadow: -5px 3px 5px -2px #000000;
+    background-color: #ffffff;
+    color: #383838;
+}
+
+.RightPanel {
+    flex: 1;
+}
+
+.Footer {
+    flex: 1;
+}

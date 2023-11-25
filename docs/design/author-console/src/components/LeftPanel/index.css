@@ -1,0 +1,58 @@
+
+#Navigation {
+    flex: 1;
+    margin: 10px 0 0 10px;
+    gap: 10px;
+}
+
+#Navigation .nav-link {
+    border-radius: 10px;
+    background-color: #383838;
+    color: #ffffff;
+}
+
+#Navigation .nav-link:hover {
+    background-color: #2f2f2f;
+}
+
+#Navigation .nav-link.active {
+    z-index: 1000;
+    background-color: #ffffff;
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+    margin-right: 0;
+    color: #383838;
+}
+
+.LeftPanel {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+}
+
+.UserInfo {
+    flex: 1;
+}
+
+.menu-divider {
+    border: 1px solid white;
+    margin: 10px 26px 0 26px;
+}
+
+.left-panel-filler {
+    flex: 8;
+}
+
+.new-assistant-button {
+    text-align: left;
+    padding: 8px 0 8px 16px;
+    border-radius: 10px;
+    border: none;
+    background-color: #838383;
+    color: black;
+    margin: 10px;
+}
+
+.new-assistant-button:hover {
+    background-color: black;
+}
