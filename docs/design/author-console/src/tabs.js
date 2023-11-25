@@ -5,17 +5,18 @@ import {Deployments} from "./components/Deployments";
 
 export const navigationTabs = [
     {
-        tab: "dashboard",
+        tab: "/dashboard",
         name: "Dashboard",
         renderComponent: () => <Dashboard/>
     },
     {
-        tab: "my-assistants",
+        tab: "/assistants",
         name: "My Assistants",
-        renderComponent: () => <AssistantsList/>
+        renderComponent: () => <AssistantsList/>,
+        hideExtras: true
     },
     {
-        tab: "deployments",
+        tab: "/deployments",
         name: "Deployments",
         renderComponent: () => <Deployments/>
     }
