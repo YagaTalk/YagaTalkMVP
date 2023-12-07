@@ -12,7 +12,7 @@ export function Footer() {
     return (
         <div className="Footer">
             <div className="footer-links">
-                {footerLinks.map((link) => <a className="footer-link" href={link}>{link}</a>)}
+                {footerLinks.map((link) => <a className="footer-link" key={link} href={link}>{link}</a>)}
             </div>
         </div>
     )

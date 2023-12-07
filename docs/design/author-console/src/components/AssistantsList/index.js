@@ -4,9 +4,10 @@ import {assistantsList} from "../../mock-data";
 import React from "react";
 import {AssistantView} from "./AssistantView";
 import {useNavigate} from "react-router";
+import {NewAssistant} from "./NewAssistant";
 
-export function AssistantsList({selectedAssistantId}) {
-    const selectedAssistant = !!selectedAssistantId && assistantsList.find(assistant => assistant.id === selectedAssistantId)
+export function AssistantsList({selectedAssistantId, createNew}) {
+    const selectedAssistant = !createNew && !!selectedAssistantId && assistantsList.find(assistant => assistant.id === selectedAssistantId)
     // const shortAssistantsList = !!selectedAssistantId
     const shortAssistantsList = false
     return <div className="AssistantsList">
@@ -20,6 +21,7 @@ export function AssistantsList({selectedAssistantId}) {
                 />
             ))}
         </ListGroup>
+        {createNew && <NewAssistant/>}
         {!!selectedAssistant && <AssistantView assistant={selectedAssistant}/>}
     </div>
 }

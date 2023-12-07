@@ -7,10 +7,17 @@
     overflow: scroll;
 }
 
+.tricks-and-tips {
+    text-align: left;
+}
+
+.tricks-and-tips h4 {
+    text-align: center;
+}
+
 .right-panel-block {
     flex: 2;
     padding: 10px;
-    text-align: center;
     background-color: #838383;
     border-radius: 10px;
 }

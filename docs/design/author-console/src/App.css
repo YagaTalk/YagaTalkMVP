@@ -2,19 +2,18 @@
     display: flex;
     flex-flow: column nowrap;
     background-color: #383838;
-    /*overflow: hidden;*/
-    /*height: 100%;*/
+    height: 100%;
 }
 
 .Header {
-    flex: 1;
+    flex: 0 0 5%;
 }
 
-.Body {
-    flex: 20;
+.AppBody {
+    flex: 0 0 auto;
     display: flex;
     flex-flow: row nowrap;
-    height: 100%;
+    /*height: 100%;*/
 }
 
 .LeftPanel {
@@ -29,6 +28,7 @@
     box-shadow: -5px 3px 5px -2px #000000;
     background-color: #ffffff;
     color: #383838;
+    overflow-x: hidden;
 }
 
 .RightPanel {
@@ -36,5 +36,5 @@
 }
 
 .Footer {
-    flex: 1;
+    flex: 0 0 5%;
 }
