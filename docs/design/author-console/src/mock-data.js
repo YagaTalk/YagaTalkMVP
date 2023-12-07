@@ -30,6 +30,15 @@ export const assistantsList = [
         context: longText(),
     },
     {
+        id: "a1e7e851-505b-4b62-b4de-5a56d46ee843",
+        name: "Pizza Order bot",
+        description: "This is pizza order bot",
+        status: "DRAFT",
+        created: "2021-01-01",
+        updated: "2021-01-01",
+        context: longText(),
+    },
+    {
         id: "4",
         name: "Assistant 4",
         description: "This is a description of Assistant 4",

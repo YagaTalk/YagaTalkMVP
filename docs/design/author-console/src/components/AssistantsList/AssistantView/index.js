@@ -28,7 +28,7 @@ export function AssistantView({assistant}) {
 
                 <div className="assistant-instruction">
                     <h2>Instruction</h2>
-                    <p>{assistant.context}</p>
+                    {assistant.context}
                 </div>
             </div>
 
