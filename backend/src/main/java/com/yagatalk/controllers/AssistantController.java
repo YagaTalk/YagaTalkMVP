@@ -54,10 +54,12 @@ public class AssistantController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createAssistant(@AuthenticationPrincipal Jwt principal, @RequestBody AssistantDTO assistantDTO) {
+    public ResponseEntity<String> createAssistant(@AuthenticationPrincipal Jwt principal,
+                                                  @RequestParam(value = "isTestSession") boolean isTestSession,
+                                                  @RequestBody AssistantDTO assistantDTO) {
+        System.out.println(isTestSession);
         var authorId = getUserId(principal);
-        var id = chatSessionService.createAssistant(assistantDTO.content, assistantDTO.name, authorId);
-
+        var id = chatSessionService.createAssistant(isTestSession, assistantDTO.content, assistantDTO.name, authorId);
 
         return ResponseEntity.status(201).body(new IdDTO(id).toString());
     }
@@ -69,7 +71,7 @@ public class AssistantController {
         @Override
         public String toString() {
             return "{" +
-                    "\"id=\"" + id + "\"" +
+                    "\"id\"" + ": \"" + id + "\"" +
                     '}';
         }
     }

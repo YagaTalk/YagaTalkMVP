@@ -37,8 +37,12 @@ public class ChatSessionService {
     }
 
     @Transactional
-    public UUID createAssistant(String content, String name, UUID assistantId) {
-        var assistant = new Assistant(UUIDGenerator.generateUUID(), content, Instant.now(), name, assistantId);
+    public UUID createAssistant(boolean isTestSession, String content, String name, UUID assistantId) {
+        Assistant.Status status = Assistant.Status.ACTIVE;
+        if (isTestSession) {
+            status = Assistant.Status.DRAFT;
+        }
+        var assistant = new Assistant(UUIDGenerator.generateUUID(), content, Instant.now(), name, assistantId, status, Instant.now());
         assistantRepository.save(assistant);
         return assistant.getId();
     }
@@ -54,8 +58,12 @@ public class ChatSessionService {
         return session.getId();
     }
 
-    public List<ChatSessionDTO> getAllChatSessionByAssistantId(UUID assistantID) {
+    public List<ChatSessionDTO> getAllChatSessionsByAssistantId(UUID assistantID) {
         return chatSessionRepository.getAllSessionsByAssistantId(assistantID).map(this::convertToChatSessionDTO).toList();
+    }
+
+    public Optional<ChatSessionDTO> getLastChatSessionsByAssistantIdAndAuthorId(UUID assistantID, UUID authorId) {
+        return chatSessionRepository.getLastSessionsByAssistantIdAndAuthorId(assistantID, authorId).map(this::convertToChatSessionDTO);
     }
 
     public List<ChatSessionDTO> getAllChatSessionsByAssistantIdAndAuthorId(UUID assistantID, UUID authorId) {
@@ -102,11 +110,12 @@ public class ChatSessionService {
         return assistantRepository.getByAuthor(assistantId, authorId).map(this::convertToAssistantDTOWithContent);
     }
 
-    public record AssistantDTOWithContent(String content, Instant createdTime, String name) {
+    public record AssistantDTOWithContent(String content, Instant createdTime, String name, Assistant.Status status,
+                                          Instant updatedTime) {
     }
 
     private AssistantDTOWithContent convertToAssistantDTOWithContent(Assistant assistant) {
-        return new AssistantDTOWithContent(assistant.getContent(), assistant.getCreatedTime(), assistant.getName());
+        return new AssistantDTOWithContent(assistant.getContent(), assistant.getCreatedTime(), assistant.getName(), assistant.getStatus(), assistant.getUpdateTime());
     }
 
     public List<AssistantDTO> getAllAssistants(Optional<Boolean> ascSort,
@@ -128,6 +137,7 @@ public class ChatSessionService {
                                                      Optional<String> searchNameQuery,
                                                      Optional<String> searchDateQuery,
                                                      UUID authorId) {
+
         if (ascSort.isPresent() && Boolean.TRUE.equals(ascSort.get())) {
             if (searchDateQuery.filter(StringUtils::isNotBlank).isPresent()) {
                 return assistantRepository.getAllAssistantsByAuthorIdWithSearchByDate("ASC", search(searchNameQuery), searchDateQuery.get(), authorId).map(this::convertToAssistantDTO).toList();

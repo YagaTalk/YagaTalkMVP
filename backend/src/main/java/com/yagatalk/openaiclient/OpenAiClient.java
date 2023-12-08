@@ -8,7 +8,7 @@ import java.util.List;
 
 public class OpenAiClient {
     private static WebClient webClient;
-    private static final String MODEL = "gpt-3.5-turbo";
+    private static final String MODEL = "gpt-3.5-turbo-1106";
     private static final int TEMPERATURE = 0;
 
     public OpenAiClient(WebClient.Builder builder, OpenAiConfig config) {
