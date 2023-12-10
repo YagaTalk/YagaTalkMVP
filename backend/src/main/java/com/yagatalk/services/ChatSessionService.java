@@ -154,11 +154,11 @@ public class ChatSessionService {
         return searchQuery.orElse("");
     }
 
-    public record AssistantDTO(UUID id, String name, Instant createdTime) {
+    public record AssistantDTO(UUID id, String name, Instant createdTime, Assistant.Status status) {
     }
 
     private AssistantDTO convertToAssistantDTO(Assistant assistant) {
-        return new AssistantDTO(assistant.getId(), assistant.getName(), assistant.getCreatedTime());
+        return new AssistantDTO(assistant.getId(), assistant.getName(), assistant.getCreatedTime(), assistant.getStatus());
     }
 
     public record MessageDTO(Role role, long created_at_ms, String content) {

@@ -1,0 +1,28 @@
+.RightPanel {
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 20px;
+    padding: 10px;
+    background-color: white;
+    overflow: scroll;
+}
+
+.tricks-and-tips {
+    text-align: left;
+}
+
+.tricks-and-tips h4 {
+    text-align: center;
+}
+
+.right-panel-block {
+    flex: 2;
+    padding: 10px;
+    background-color: #838383;
+    border-radius: 10px;
+}
+
+.right-panel-block:first-child {
+    flex: 1;
+}
+

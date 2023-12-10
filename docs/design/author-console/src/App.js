@@ -3,7 +3,6 @@ import React, {useEffect} from "react";
 import {BrowserRouter, Route, Routes, useParams} from "react-router-dom";
 import LeftPanel from "./components/LeftPanel";
 import {navigationTabs} from "./tabs";
-import {Dashboard} from "./components/Dashboard";
 import {RightPanel} from "./components/RightPanel";
 import {Footer} from "./components/Footer";
 import {Header} from "./components/Header";

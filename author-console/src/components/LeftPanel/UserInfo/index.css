@@ -1,0 +1,33 @@
+.UserInfo {
+    display: flex;
+    flex-flow: column nowrap;
+    border-radius: 10px;
+    margin: 10px 10px 0 10px;
+    background-color: #838383;
+}
+
+.username {
+    text-align: center;
+    margin: 10px 0 5px 0;
+}
+
+.username-icon {
+    width: 30px;
+    height: 30px;
+}
+
+.username-text {
+    font-size: 16px;
+}
+
+.logout-button {
+    border-radius: 10px;
+    border: none;
+    background-color: #383838;
+    color: #ffffff;
+    margin: 5px 5px 5px 5px;
+}
+
+.logout-button:hover {
+    background-color: black;
+}

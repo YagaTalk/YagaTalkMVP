@@ -1,0 +1,14 @@
+.Footer {
+}
+
+.footer-links {
+    margin: 10px 20%;
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+}
+
+.footer-link {
+    color: #838383;
+    text-decoration: none;
+}

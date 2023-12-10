@@ -1,0 +1,22 @@
+.Header {
+    text-align: center;
+    margin: 20px 0 20px 0;
+    color: #ffffff;
+    font-size: 36px;
+}
+
+.brand-name {
+
+}
+
+.brand-icon {
+    margin-left: 10px;
+    margin-bottom: 15px;
+    width: 36px;
+    height: 36px;
+}
+
+.brand-phrase {
+    margin: 0 0 0 15px;
+    color: grey;
+}
