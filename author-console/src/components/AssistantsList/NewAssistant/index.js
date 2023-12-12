@@ -1,24 +1,57 @@
 import './index.css';
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import {Button, Form, Modal} from "react-bootstrap";
 import InputGroupText from "react-bootstrap/InputGroupText";
 import {useNavigate} from "react-router";
+import {AuthContext} from "../../../auth";
+import {BACKEND_URL} from "../../../Config";
+import axios from "axios";
 
 export function NewAssistant() {
     const [creationInProgress, setCreationInProgress] = useState(true)
     const [name, setName] = useState('')
     const [description, setDescription] = useState('')
-    const [context, setContext] = useState('')
+    const [content, setContent] = useState('')
     const [createdAssistantId, setCreatedAssistantId] = useState(null)
-
-    const testChatEnabled = !!createdAssistantId;
+    const {token} = useContext(AuthContext);
 
     const resetState = () => {
         setName('')
         setDescription('')
-        setContext('')
+        setContent('')
         setCreatedAssistantId(null)
     }
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        const url = `${BACKEND_URL}/api/assistants`;
+        const headers = {'Authorization': `Bearer ${token}`};
+        const data = {
+            name,
+            content,
+        };
+
+        try {
+            const response = await axios.post(url, data, {headers});
+            console.log('Response:', response.data);
+            resetState();
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.log(`Error calling endpoint ${url}: ${error}`);
+                if (error.response) {
+                    console.error(`Error: ${error.response.status}`);
+                } else {
+                    console.error(error);
+                }
+            } else {
+                throw error;
+            }
+        }
+    };
+
+
+    const testChatEnabled = !!createdAssistantId;
 
     const navigate = useNavigate()
     const closeModal = () => {
@@ -54,7 +87,7 @@ export function NewAssistant() {
                             <InputGroupText>
                                 <Form.Label>Instruction</Form.Label>
                                 <Form.Control
-                                    onChange={e => setContext(e.target.value)}
+                                    onChange={e => setContent(e.target.value)}
                                     as="textarea"
                                     rows={15}
                                     type="text"
@@ -68,11 +101,10 @@ export function NewAssistant() {
                 <Modal.Footer>
                     <Button
                         onClick={() => {
-                            setCreatedAssistantId("a1e7e851-505b-4b62-b4de-5a56d46ee843")
+                            handleSubmit();
                         }}>Test</Button>
                     <Button
                         onClick={() => {
-                            setCreatedAssistantId("a1e7e851-505b-4b62-b4de-5a56d46ee843")
                             closeModal()
                         }}
                         variant="primary">Create</Button>

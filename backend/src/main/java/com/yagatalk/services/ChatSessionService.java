@@ -37,12 +37,12 @@ public class ChatSessionService {
     }
 
     @Transactional
-    public UUID createAssistant(boolean isTestSession, String content, String name, UUID assistantId) {
+    public UUID createAssistant(boolean isTestSession, String content, String name, String description, UUID assistantId) {
         Assistant.Status status = Assistant.Status.ACTIVE;
         if (isTestSession) {
             status = Assistant.Status.DRAFT;
         }
-        var assistant = new Assistant(UUIDGenerator.generateUUID(), content, Instant.now(), name, assistantId, status, Instant.now());
+        var assistant = new Assistant(UUIDGenerator.generateUUID(), content, Instant.now(), name, assistantId, status, Instant.now(), description);
         assistantRepository.save(assistant);
         return assistant.getId();
     }
@@ -111,11 +111,12 @@ public class ChatSessionService {
     }
 
     public record AssistantDTOWithContent(String content, Instant createdTime, String name, Assistant.Status status,
-                                          Instant updatedTime) {
+                                          Instant updatedTime, String description) {
     }
 
     private AssistantDTOWithContent convertToAssistantDTOWithContent(Assistant assistant) {
-        return new AssistantDTOWithContent(assistant.getContent(), assistant.getCreatedTime(), assistant.getName(), assistant.getStatus(), assistant.getUpdateTime());
+        return new AssistantDTOWithContent(assistant.getContent(), assistant.getCreatedTime(), assistant.getName(),
+                assistant.getStatus(), assistant.getUpdateTime(), assistant.getDescription());
     }
 
     public List<AssistantDTO> getAllAssistants(Optional<Boolean> ascSort,
@@ -154,11 +155,12 @@ public class ChatSessionService {
         return searchQuery.orElse("");
     }
 
-    public record AssistantDTO(UUID id, String name, Instant createdTime, Assistant.Status status) {
+    public record AssistantDTO(UUID id, String name, String content, Instant createdTime, Instant updatedTime,
+                               Assistant.Status status, String description) {
     }
 
     private AssistantDTO convertToAssistantDTO(Assistant assistant) {
-        return new AssistantDTO(assistant.getId(), assistant.getName(), assistant.getCreatedTime(), assistant.getStatus());
+        return new AssistantDTO(assistant.getId(), assistant.getName(), assistant.getContent(), assistant.getCreatedTime(), assistant.getUpdateTime(), assistant.getStatus(), assistant.getDescription());
     }
 
     public record MessageDTO(Role role, long created_at_ms, String content) {

@@ -2,6 +2,7 @@ import './index.css';
 import React from "react";
 import {Button} from "react-bootstrap";
 import {useNavigate} from "react-router";
+import {format} from "date-fns";
 
 export function AssistantView({assistant}) {
     return (
@@ -15,11 +16,13 @@ export function AssistantView({assistant}) {
                 </div>
                 <div className="assistant-attribute">
                     <span className="assistant-attribute-key">Created </span>
-                    <span className="assistant-attribute-value">{assistant.created}</span>
+                    <span
+                        className="assistant-attribute-value">{format(new Date(assistant.createdTime), "yyyy-MM-dd HH:mm")}</span>
                 </div>
                 <div className="assistant-attribute">
                     <span className="assistant-attribute-key">Updated </span>
-                    <span className="assistant-attribute-value">{assistant.updated}</span>
+                    <span
+                        className="assistant-attribute-value">{format(new Date(assistant.updatedTime), "yyyy-MM-dd HH:mm")}</span>
                 </div>
                 <div className="assistant-attribute">
                     <span className="assistant-attribute-key">Status </span>
@@ -28,7 +31,7 @@ export function AssistantView({assistant}) {
 
                 <div className="assistant-instruction">
                     <h2>Instruction</h2>
-                    {assistant.context}
+                    {assistant.content}
                 </div>
             </div>
 

@@ -20,9 +20,9 @@ public class AssistantRepository {
     }
 
     public void save(Assistant assistant) {
-        jdbcTemplate.update("INSERT INTO assistant values (?,?,?,?,?,?,?)",
+        jdbcTemplate.update("INSERT INTO assistant values (?,?,?,?,?,?,?,?)",
                 assistant.getId(), assistant.getContent(), Timestamp.from(assistant.getCreatedTime()), assistant.getName(), assistant.getAuthorId(),
-                assistant.getStatus().toString(), Timestamp.from(assistant.getUpdateTime()));
+                assistant.getStatus().toString(), Timestamp.from(assistant.getUpdateTime()), assistant.getDescription());
     }
 
     public Optional<Assistant> getById(UUID assistantId) {
@@ -83,6 +83,7 @@ public class AssistantRepository {
                     rs.getString("name"),
                     UUID.fromString(rs.getString("author_id")),
                     Assistant.Status.valueOf(rs.getString("status")),
-                    rs.getTimestamp("updated_time").toInstant()
+                    rs.getTimestamp("updated_time").toInstant(),
+                    rs.getString("description")
             );
 }

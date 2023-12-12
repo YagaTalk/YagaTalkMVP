@@ -17,8 +17,9 @@ public class Assistant {
     private final Status status;
 
     private Instant updateTime;
+    private String description;
 
-    public Assistant(UUID id, String content, Instant createdTime, String name, UUID authorId, Status status, Instant updateTime) {
+    public Assistant(UUID id, String content, Instant createdTime, String name, UUID authorId, Status status, Instant updateTime, String description) {
         this.id = id;
         this.name = name;
         this.createdTime = createdTime;
@@ -26,6 +27,7 @@ public class Assistant {
         this.authorId = authorId;
         this.status = status;
         this.updateTime = updateTime;
+        this.description = description;
     }
 
     public UUID getId() {
@@ -54,6 +56,10 @@ public class Assistant {
 
     public Instant getUpdateTime() {
         return updateTime;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public void setUpdateTime(Instant updateTime) {

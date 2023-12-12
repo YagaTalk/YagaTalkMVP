@@ -57,14 +57,14 @@ public class AssistantController {
     public ResponseEntity<String> createAssistant(@AuthenticationPrincipal Jwt principal,
                                                   @RequestParam(value = "isTestSession") boolean isTestSession,
                                                   @RequestBody AssistantDTO assistantDTO) {
-        System.out.println(isTestSession);
         var authorId = getUserId(principal);
-        var id = chatSessionService.createAssistant(isTestSession, assistantDTO.content, assistantDTO.name, authorId);
+        var id = chatSessionService.createAssistant(isTestSession, assistantDTO.content, assistantDTO.name,
+                assistantDTO.description, authorId);
 
         return ResponseEntity.status(201).body(new IdDTO(id).toString());
     }
 
-    private record AssistantDTO(String content, String name) {
+    private record AssistantDTO(String content, String name, String description) {
     }
 
     private record IdDTO(UUID id) {
