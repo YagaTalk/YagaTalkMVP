@@ -42,6 +42,7 @@ public class ChatSessionService {
         if (isTestSession) {
             status = Assistant.Status.DRAFT;
         }
+
         var assistant = new Assistant(UUIDGenerator.generateUUID(), content, Instant.now(), name, assistantId, status, Instant.now(), description);
         assistantRepository.save(assistant);
         return assistant.getId();
@@ -104,6 +105,21 @@ public class ChatSessionService {
 
     public Optional<AssistantDTOWithContent> getAssistantById(UUID assistantId) {
         return assistantRepository.getById(assistantId).map(this::convertToAssistantDTOWithContent);
+    }
+
+    @Transactional
+    public void activateAssistant(UUID assistantId) {
+//        chatSessionRepository.delete(assistantId);
+        assistantRepository.activateStatus(assistantId);
+
+    }
+
+    @Transactional
+    public void editAssistant(UUID assistantId, UUID authorId, String content, String name, String description) {
+        assistantRepository.editDraftAssistant(assistantId, content, name, description);
+        Optional<ChatSession> chatSessionId = chatSessionRepository.getLastSessionsByAssistantIdAndAuthorId(assistantId, authorId);
+        messageRepository.deleteAllMessagesByChatSessionId(chatSessionId.get().getId());
+        createSystemMessage(assistantId, chatSessionId.get().getId());
     }
 
     public Optional<AssistantDTOWithContent> getAssistantByAuthor(UUID assistantId, UUID authorId) {

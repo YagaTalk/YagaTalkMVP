@@ -1,29 +1,33 @@
-.NewAssistant {
-    display: flex;
-    flex-flow: column nowrap;
-    align-items: center;
-    justify-content: center;
-    min-width: 1800px;
-    /*height: 100%;*/
-    /*padding: 20px 0;*/
-}
+/*.NewAssistant {*/
+/*    display: flex;*/
+/*    flex-flow: column nowrap;*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    min-width: 1800px;*/
 
-.modal {
-    /*width: 100%;*/
-    height: 60vw;
-}
+/*    !*height: 100%;*!*/
+/*    !*padding: 20px 0;*!*/
+/*}*/
 
+/*.modal {*/
+/*    !*width: 100%;*!*/
+/*    height: 60vw;*/
+/*}*/
 .modal-content {
     height: 60vh;
-}
+    margin: 0; /* Добавьте этот стиль для убирания отступов */
+    top: 0; /* Установите верхнюю границу на 0 */
+    left: -36%;
+    /*
+   }
 
-.modal-dialog {
-    width: 40vw;
-    /*height: 100%;*/
+   .modal-dialog {
+       width: 40vw;
+       /*height: 100%;*/
 }
 
 .with-test-chat {
-    min-width: 60vw;
+    min-width: 20vw;
 }
 
 .modal-body {
@@ -32,18 +36,12 @@
     align-items: center;
     justify-content: center;
     height: 100%;
-    padding: 20px 0;
+    padding: 0px;
     border-bottom: 1px solid #e5e5e5;
     gap: 10px
 }
 
 .assistant-form-controls {
-    flex: 1 1 50%;
-    height: 100%;
-    width: 100%;
-}
-
-.test-chat {
     flex: 1 1 50%;
     height: 100%;
     width: 100%;

@@ -52,6 +52,9 @@ public class PersistentQueueImpl implements IPersistentQueue {
             processTasks();
         } catch (Exception e) {
             logger.error("error occurred in async task", e);
+        } catch (Throwable throwable) {
+            logger.error("Shit happens", throwable);
+            throw throwable;
         }
     }
 

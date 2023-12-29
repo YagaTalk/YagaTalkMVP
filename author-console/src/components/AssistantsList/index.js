@@ -1,6 +1,5 @@
 import './index.css';
-import {ListGroup} from "react-bootstrap";
-import {assistantsList} from "../../mock-data";
+import {Button, ButtonGroup, Col, Container, Form, ListGroup, Row} from "react-bootstrap";
 import {format} from "date-fns";
 import React, {useContext, useEffect, useState} from "react";
 import {AssistantView} from "./AssistantView";
@@ -9,14 +8,26 @@ import {NewAssistant} from "./NewAssistant";
 import {BACKEND_URL} from "../../Config";
 import axios from "axios";
 import {AuthContext} from "../../auth";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 export function AssistantsList({selectedAssistantId, createNew}) {
     const [assistants, setAssistants] = useState([]);
     const [sortByDate, setSortByDate] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [showDatePicker, setShowDatePicker] = useState(false);
     const [selectedDate, setSelectedDate] = useState(null);
-    const {token, userInfo} = useContext(AuthContext);
+    const {token} = useContext(AuthContext);
 
+
+    const handleShowDatePicker = () => {
+        setShowDatePicker(true);
+    };
+
+    const handleCloseDatePicker = () => {
+        setShowDatePicker(false);
+    };
     const formatDate = (year, month, day) => {
         if (year && month && day) {
             return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
@@ -58,6 +69,58 @@ export function AssistantsList({selectedAssistantId, createNew}) {
 
     const selectedAssistant = !createNew && !!selectedAssistantId && assistants.find(assistant => assistant.id === selectedAssistantId)
     const shortAssistantsList = false
+
+    // return (
+    //     <Container fluid>
+    //         <Row className="mb-3">
+    //             <Col md={6}>
+    //                 <Form>
+    //                     <Form.Group controlId="searchTerm">
+    //                         <Form.Control type="text" placeholder="Search" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+    //                     </Form.Group>
+    //                 </Form>
+    //             </Col>
+    //             <Col md={6} className="d-flex justify-content-end">
+    //                 <ButtonGroup>
+    //                     <Button variant="secondary" onClick={() => setSortByDate(!sortByDate)}>
+    //                         {sortByDate ? "Sort by Descending Date" : "Sort by Ascending Date"}
+    //                     </Button>
+    //                     <Button variant="secondary" onClick={handleShowDatePicker}>
+    //                         Select Date
+    //                     </Button>
+    //                     {showDatePicker && (
+    //                         <DatePicker
+    //                             selected={selectedDate}
+    //                             onChange={(date) => {
+    //                                 setSelectedDate(date);
+    //                                 handleCloseDatePicker();
+    //                             }}
+    //                             dateFormat="yyyy-MM-dd"
+    //                             placeholderText="Select a date"
+    //                             inline
+    //                         />
+    //                     )}
+    //                 </ButtonGroup>
+    //             </Col>
+    //         </Row>
+    //         <Row>
+    //             <Col>
+    //                 <ListGroup className="AssistantsListItems">
+    //                     {assistants.map((assistant) => (
+    //                         <AssistantsListItem key={assistant.id} assistant={assistant} short={shortAssistantsList} selected={assistant.id === selectedAssistant?.id} />
+    //                     ))}
+    //                 </ListGroup>
+    //             </Col>
+    //         </Row>
+    //         <Row>
+    //             <Col>
+    //                 {createNew && <NewAssistant />}
+    //                 {!!selectedAssistant && <AssistantView assistant={selectedAssistant} />}
+    //             </Col>
+    //         </Row>
+    //     </Container>
+    // );
+
     return <div className="AssistantsList">
         <ListGroup className="AssistantsListItems">
             {assistants.map(assistant => (
@@ -87,7 +150,7 @@ function AssistantsListItem({assistant, short, selected}) {
                 <AssistantStatusBadge status={assistant.status}/>
             </span>
             {!short && <>
-                <p>This is a description of {assistant.name}</p>
+                <p>{assistant.description}</p>
                 <p>{format(new Date(assistant.createdTime), "yyyy-MM-dd HH:mm")}</p>
             </>}
         </ListGroup.Item>)

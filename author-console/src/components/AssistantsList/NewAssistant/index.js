@@ -6,9 +6,11 @@ import {useNavigate} from "react-router";
 import {AuthContext} from "../../../auth";
 import {BACKEND_URL} from "../../../Config";
 import axios from "axios";
+import Chat from "../../TestChat";
 
 export function NewAssistant() {
     const [creationInProgress, setCreationInProgress] = useState(true)
+    const [isTestPressed, setIsTestPressed] = useState(false)
     const [name, setName] = useState('')
     const [description, setDescription] = useState('')
     const [content, setContent] = useState('')
@@ -22,30 +24,104 @@ export function NewAssistant() {
         setCreatedAssistantId(null)
     }
 
-    const handleSubmit = async (event) => {
+    const handleTest = async (event, isTestPressed, assistantId) => {
         event.preventDefault();
 
-        const url = `${BACKEND_URL}/api/assistants`;
+        const url2 = `${BACKEND_URL}/api/assistants?isTestSession=true`;
+
+        const url = `${BACKEND_URL}/api/assistants/edit/${assistantId}`;
         const headers = {'Authorization': `Bearer ${token}`};
         const data = {
             name,
             content,
+            description
         };
 
-        try {
-            const response = await axios.post(url, data, {headers});
-            console.log('Response:', response.data);
-            resetState();
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                console.log(`Error calling endpoint ${url}: ${error}`);
-                if (error.response) {
-                    console.error(`Error: ${error.response.status}`);
+        if (isTestPressed) {
+            try {
+                console.log("----------------------------------")
+                console.log(url)
+                const response = await axios.post(url, data, {headers});
+                console.log("test button was pressed")
+                console.log("/////////////handleTest/////////////")
+                console.log('Response:', response.data.id);
+                console.log("////////////handleTest/////////////////")
+                // resetState();
+            } catch (error) {
+                if (axios.isAxiosError(error)) {
+                    console.log(`Error calling endpoint ${url}: ${error}`);
+                    if (error.response) {
+                        console.error(`Error: ${error.response.status}`);
+                    } else {
+                        console.error(error);
+                    }
                 } else {
-                    console.error(error);
+                    throw error;
                 }
-            } else {
-                throw error;
+            }
+        } else {
+            const response = await axios.post(url2, data, {headers});
+            console.log("///////////////getAssistantId////////////////////")
+            console.log('Response:', response.data.id);
+            console.log("///////////////getAssistantId////////////////////")
+            // resetState();
+            setCreatedAssistantId(response.data.id);
+            return response.data.id;
+        }
+    };
+    const handleSubmit = async (event, isTestSession, isTestPressed) => {
+        event.preventDefault();
+
+        const url = `${BACKEND_URL}/api/assistants?isTestSession=${isTestSession}`;
+
+        const url2 = `${BACKEND_URL}/api/assistants/${createdAssistantId}`;
+        const headers = {'Authorization': `Bearer ${token}`};
+        const data = {
+            name,
+            content,
+            description
+        };
+
+        if (isTestPressed) {
+            try {
+                console.log("----------------------------------")
+                console.log(url2)
+                const response = await axios.post(url2, data, {headers});
+                console.log("test button was pressed")
+                console.log("/////////////handleSubmit//////////////////////")
+                console.log('Response:', response.data.id);
+                console.log("////////////handleSubmit/////////////////////////")
+                // resetState();
+            } catch (error) {
+                if (axios.isAxiosError(error)) {
+                    console.log(`Error calling endpoint ${url}: ${error}`);
+                    if (error.response) {
+                        console.error(`Error: ${error.response.status}`);
+                    } else {
+                        console.error(error);
+                    }
+                } else {
+                    throw error;
+                }
+            }
+        } else {
+            try {
+                const response = await axios.post(url, data, {headers});
+                console.log("//////////handleSubmit////////////////////")
+                console.log('Response:', response.data.id);
+                console.log("//////handleSubmit////////////////////")
+                // resetState();
+            } catch (error) {
+                if (axios.isAxiosError(error)) {
+                    console.log(`Error calling endpoint ${url}: ${error}`);
+                    if (error.response) {
+                        console.error(`Error: ${error.response.status}`);
+                    } else {
+                        console.error(error);
+                    }
+                } else {
+                    throw error;
+                }
             }
         }
     };
@@ -55,7 +131,7 @@ export function NewAssistant() {
 
     const navigate = useNavigate()
     const closeModal = () => {
-        resetState()
+        // resetState()
         setCreationInProgress(false)
         !!createdAssistantId ? navigate("/assistants/" + createdAssistantId) : navigate("/assistants")
     }
@@ -96,15 +172,22 @@ export function NewAssistant() {
                             </InputGroupText>
                         </Form>
                     </div>
-                    {testChatEnabled && <TestChat assistantId={createdAssistantId}/>}
+                    {testChatEnabled && <Chat assistantId={createdAssistantId}/>}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button
-                        onClick={() => {
-                            handleSubmit();
+                        onClick={(event) => {
+                            event.preventDefault();
+                            handleTest(event, isTestPressed, createdAssistantId)
+                            setIsTestPressed(true)
+                            console.log("created assistant after test was pressed:" + createdAssistantId)
                         }}>Test</Button>
                     <Button
-                        onClick={() => {
+                        onClick={(event) => {
+                            event.preventDefault();
+                            console.log("Is test button pressed " + isTestPressed)
+                            handleSubmit(event, false, isTestPressed);
+                            console.log("created assistant after submit was pressed:" + createdAssistantId)
                             closeModal()
                         }}
                         variant="primary">Create</Button>
@@ -113,8 +196,3 @@ export function NewAssistant() {
         </>
     )
 }
-
-function TestChat({assistantId}) {
-    return <iframe className="test-chat" src={"http://localhost:3001/" + assistantId}/>
-}
-

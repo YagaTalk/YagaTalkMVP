@@ -25,6 +25,15 @@ public class AssistantRepository {
                 assistant.getStatus().toString(), Timestamp.from(assistant.getUpdateTime()), assistant.getDescription());
     }
 
+    public void activateStatus(UUID assistantId) {
+        jdbcTemplate.update("UPDATE assistant SET status = 'ACTIVE' WHERE id = ?", assistantId);
+    }
+
+    public void editDraftAssistant(UUID assistantId, String content, String name, String description) {
+        jdbcTemplate.update("UPDATE assistant SET content = ?,name = ?,description = ? WHERE id = ?", content, name, description, assistantId);
+    }
+
+
     public Optional<Assistant> getById(UUID assistantId) {
         var assistant = jdbcTemplate.query("SELECT * FROM assistant WHERE id =? ", extractAssistant, assistantId);
         return assistant.isEmpty() ? Optional.empty() : Optional.of(assistant.get(0));

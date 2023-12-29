@@ -3,7 +3,13 @@ import {Button, FigureImage} from "react-bootstrap";
 import {AuthContext} from "../../../auth";
 import {useContext} from "react";
 
+
 export function UserInfo() {
+
+    const authContext = useContext(AuthContext);
+    const handleLogout = async () => {
+        await authContext.logout();
+    };
     const {userInfo} = useContext(AuthContext);
     const preferredUsername = JSON.parse(JSON.stringify(userInfo)).preferred_username;
 
@@ -12,7 +18,7 @@ export function UserInfo() {
             <UserIcon/>
             <span className="username-text">{preferredUsername}</span>
         </span>
-        <Button className="logout-button">Logout</Button>
+        <Button className="logout-button" onClick={handleLogout}> Logout</Button>
     </div>)
 }
 

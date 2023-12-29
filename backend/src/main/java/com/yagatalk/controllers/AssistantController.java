@@ -53,6 +53,57 @@ public class AssistantController {
         return ResponseEntity.status(401).body("Not authorized");
     }
 
+
+    @PostMapping("/{id}")
+    public ResponseEntity<String> activateAssistant(@AuthenticationPrincipal Jwt principal,
+                                                    @PathVariable("id") UUID assistantId) {
+
+        if (hasRoleAdmin(principal)) {
+            if (chatSessionService.getAssistantById(assistantId).isEmpty()) {
+                return ResponseEntity.status(204).body("assistant not found by id=" + assistantId);
+            }
+            chatSessionService.activateAssistant(assistantId);
+            return ResponseEntity.status(201).body("success");
+
+        }
+        if (hasRoleAuthor(principal)) {
+            UUID authorId = getUserId(principal);
+            if (chatSessionService.getAssistantByAuthor(assistantId, authorId).isEmpty()) {
+                return ResponseEntity.status(204).body("assistant not found by id=" + assistantId);
+            }
+            chatSessionService.activateAssistant(assistantId);
+            return ResponseEntity.status(201).body("success");
+        }
+
+        return ResponseEntity.status(401).body("Not authorized");
+    }
+
+    @PostMapping("/edit/{id}")
+    public ResponseEntity<String> editDraftAssistant(@AuthenticationPrincipal Jwt principal,
+                                                     @PathVariable("id") UUID assistantId,
+                                                     @RequestBody AssistantDTO assistantDTO) {
+        UUID authorId = getUserId(principal);
+
+        if (hasRoleAdmin(principal)) {
+            if (chatSessionService.getAssistantById(assistantId).isEmpty()) {
+                return ResponseEntity.status(204).body("assistant not found by id=" + assistantId);
+            }
+
+            chatSessionService.editAssistant(assistantId, authorId, assistantDTO.content, assistantDTO.name, assistantDTO.description);
+            return ResponseEntity.status(201).body("success");
+
+        }
+        if (hasRoleAuthor(principal)) {
+            if (chatSessionService.getAssistantByAuthor(assistantId, authorId).isEmpty()) {
+                return ResponseEntity.status(204).body("assistant not found by id=" + assistantId);
+            }
+            chatSessionService.editAssistant(assistantId, authorId, assistantDTO.content, assistantDTO.name, assistantDTO.description);
+            return ResponseEntity.status(201).body("success");
+        }
+
+        return ResponseEntity.status(401).body("Not authorized");
+    }
+
     @PostMapping
     public ResponseEntity<String> createAssistant(@AuthenticationPrincipal Jwt principal,
                                                   @RequestParam(value = "isTestSession") boolean isTestSession,

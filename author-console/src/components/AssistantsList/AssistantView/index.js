@@ -1,8 +1,9 @@
 import './index.css';
-import React from "react";
-import {Button} from "react-bootstrap";
+import React, {useState} from "react";
+import {Button, OverlayTrigger, Tooltip} from "react-bootstrap";
 import {useNavigate} from "react-router";
 import {format} from "date-fns";
+import copy from "copy-to-clipboard";
 
 export function AssistantView({assistant}) {
     return (
@@ -40,7 +41,21 @@ export function AssistantView({assistant}) {
 }
 
 function AssistantViewHeader({assistant}) {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const [copied, setCopied] = useState(false);
+
+    const handleCopyLink = () => {
+        const linkToCopy = `http://localhost:3001/embeddable-chat/${assistant.id}`;
+        copy(linkToCopy);
+        setCopied(true);
+
+        setTimeout(() => {
+            setCopied(false);
+        }, 1000);
+    };
+
+    const tooltip = <Tooltip id="tooltip">Copy Link</Tooltip>;
+
     return <div className={"AssistantViewHeader"}>
 
         <span>
@@ -57,5 +72,15 @@ function AssistantViewHeader({assistant}) {
             <span className="assistant-name">{assistant.name}</span>
         </span>
 
+        {assistant.status === "active" && (
+            <OverlayTrigger placement="left" overlay={tooltip}>
+                <Button
+                    className={`btn btn-success${copied ? " disabled" : ""}`}
+                    onClick={handleCopyLink}
+                    disabled={copied}
+                >
+                    Get Link!
+                </Button>
+            </OverlayTrigger>)}
     </div>
 }

@@ -26,13 +26,17 @@ public class MessageRepository {
                 chatSessionId);
     }
 
+    public void deleteAllMessagesByChatSessionId(UUID chatSessionId) {
+        jdbcTemplate.update("DELETE FROM message where chat_session_id=?", chatSessionId);
+    }
+
     public Stream<Message> getAllMessagesByChatSessionIdAfterMs(UUID chatSessionId, long ms) {
 
         return jdbcTemplate.queryForStream("SELECT * FROM message WHERE chat_session_id = ? " +
                         "AND EXTRACT(EPOCH FROM created_time) * 1000 > ? " +
                         "ORDER BY created_time;",
                 extractMessage,
-                chatSessionId,ms);
+                chatSessionId, ms);
 
     }
 

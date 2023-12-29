@@ -26,6 +26,10 @@ public class ChatSessionRepository {
                 session.getId(), session.getAssistantId(), Timestamp.from(session.getCreatedTime()));
     }
 
+    public void delete(UUID assistantId) {
+        jdbcTemplate.update("DELETE FROM chat_session WHERE assistant_id=?", assistantId);
+    }
+
     public Stream<ChatSession> getAllSessionsByAssistantId(UUID assistantId) {
         return jdbcTemplate.queryForStream("SELECT * FROM chat_session WHERE assistant_id = ?",
                 extractChatSession, assistantId);
