@@ -8,6 +8,7 @@ import axios from "axios";
 export function Dashboard() {
 
     const [assistants, setAssistants] = useState(0);
+    const [chatSessions, setChatSessions] = useState(0);
     const [sortByDate, setSortByDate] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedDate, setSelectedDate] = useState(null);
@@ -32,10 +33,10 @@ export function Dashboard() {
         },
         {
             id: "my-users-count",
-            name: "Your bots are used by",
+            name: "You created",
             component: () => (
                 <div className="widget-my-users-count">
-                    <h1>15632 users</h1>
+                    <h1>{chatSessions} chat sessions</h1>
                 </div>
             ),
         },
@@ -62,11 +63,28 @@ export function Dashboard() {
                 : '';
 
             const url = `${BACKEND_URL}/api/assistants?asc_sort=${sortByDate}&searchNameQuery=${searchTerm}&searchDateQuery=${formattedDate}`
+            const url2 = `${BACKEND_URL}/api/sessions/count`
             const headers = {'Authorization': `Bearer ${token}`};
 
             try {
                 const response = await axios.get(url, {headers});
                 setAssistants(response.data.length);
+            } catch (error) {
+                if (axios.isAxiosError(error)) {
+                    console.log(`Error calling endpoint ${url}: ${error}`);
+                    if (error.response) {
+                        console.error(`Error: ${error.response.status}`);
+                    } else {
+                        console.error(error);
+                    }
+                } else {
+                    throw error;
+                }
+            }
+
+            try {
+                const response = await axios.get(url2, {headers});
+                setChatSessions(response.data);
             } catch (error) {
                 if (axios.isAxiosError(error)) {
                     console.log(`Error calling endpoint ${url}: ${error}`);

@@ -107,16 +107,18 @@ export function AssistantsList({selectedAssistantId, createNew}) {
     //             <Col>
     //                 <ListGroup className="AssistantsListItems">
     //                     {assistants.map((assistant) => (
-    //                         <AssistantsListItem key={assistant.id} assistant={assistant} short={shortAssistantsList} selected={assistant.id === selectedAssistant?.id} />
+    //                         <AssistantsListItem
+    //                              key={assistant.id}
+    //                              assistant={assistant}
+    //                              short={shortAssistantsList}
+    //                              selected={assistant.id === selectedAssistant?.id} />
     //                     ))}
     //                 </ListGroup>
     //             </Col>
     //         </Row>
     //         <Row>
-    //             <Col>
     //                 {createNew && <NewAssistant />}
     //                 {!!selectedAssistant && <AssistantView assistant={selectedAssistant} />}
-    //             </Col>
     //         </Row>
     //     </Container>
     // );

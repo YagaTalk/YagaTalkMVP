@@ -41,6 +41,16 @@ public class ChatSessionRepository {
                 extractChatSession, assistantId, authorId);
     }
 
+    public int getChatSessionsCountByAuthorId(UUID authorId) {
+        return jdbcTemplate.queryForObject("SELECT COUNT(cs.*) AS row_count FROM chat_session cs JOIN assistant a ON cs.assistant_id = a.id WHERE a.author_id = ?",
+                Integer.class, authorId);
+    }
+
+    public int getChatSessionsCount() {
+        return jdbcTemplate.queryForObject("select count(*) AS row_count from chat_session",
+                Integer.class);
+    }
+
     public Optional<ChatSession> getLastSessionsByAssistantIdAndAuthorId(UUID assistantId, UUID authorId) {
         var chatSession = jdbcTemplate.query("SELECT cs.* FROM chat_session cs JOIN assistant a ON cs.assistant_id = a.id" +
                         " WHERE cs.assistant_id = ? AND a.author_id = ? ORDER BY cs.created_time DESC LIMIT 1;",

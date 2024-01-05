@@ -59,6 +59,14 @@ public class ChatSessionService {
         return session.getId();
     }
 
+    public int getChatSessionsCount(UUID authorId) {
+        return chatSessionRepository.getChatSessionsCountByAuthorId(authorId);
+    }
+
+    public int getChatSessionsCount() {
+        return chatSessionRepository.getChatSessionsCount();
+    }
+
     public List<ChatSessionDTO> getAllChatSessionsByAssistantId(UUID assistantID) {
         return chatSessionRepository.getAllSessionsByAssistantId(assistantID).map(this::convertToChatSessionDTO).toList();
     }

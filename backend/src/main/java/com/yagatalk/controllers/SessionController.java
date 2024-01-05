@@ -41,14 +41,23 @@ public class SessionController {
         return ResponseEntity.status(401).body("Not authorized");
     }
 
-    ///maybe rename into createCurrentChatSession
-    //4.2 правда ли что всегда создается новая сессия
-    //not found или access to DRAFT assistant is forbidden
+    @GetMapping("/count")
+    public ResponseEntity<?> getChatSessionsCount(@AuthenticationPrincipal Jwt principal) {
+        if (hasRoleAdmin(principal)) {
+            return ResponseEntity.status(200).body(chatSessionService.getChatSessionsCount());
+        }
+        if (hasRoleAuthor(principal)) {
+            UUID authorId = getUserId(principal);
+            return ResponseEntity.status(200).body(chatSessionService.getChatSessionsCount(authorId));
+        }
+
+        return ResponseEntity.status(401).body("Not authorized");
+    }
+
     @GetMapping("/current")
     public ResponseEntity<?> getCurrentChatSession(
             @AuthenticationPrincipal Jwt principal,
             @RequestParam(value = "assistantId") UUID assistantId) {
-        System.out.println();
 
         if (principal == null) {
             var assistant = chatSessionService.getAssistantById(assistantId);
@@ -74,32 +83,6 @@ public class SessionController {
         }
         var id = chatSessionService.createChatSession(assistantId);
         return ResponseEntity.status(201).body(new IdDTO(id));
-
-
-//        ////////////////////
-//        var assistant = chatSessionService.getAssistantById(assistantId);
-//
-//
-//        if (assistant.get().status().equals(Assistant.Status.DRAFT)) {
-//            if (principal == null) {
-//                return ResponseEntity.status(403).body("access to DRAFT assistant is forbidden");
-//            }
-//
-//
-//            if (!hasRoleAdmin(principal.get()) && !hasRoleAuthor(principal.get())) {
-//                return ResponseEntity.status(403).body("access to DRAFT assistant is forbidden");
-//            }
-//            var id = chatSessionService.createChatSession(assistantId);
-//            return ResponseEntity.status(201).body(new IdDTO(id));
-//        }
-//
-//        if (assistant.get().createdTime().equals(assistant.get().updatedTime())) {
-//            UUID authorId = getUserId(principal.get());
-//            var chatSessionDTO = chatSessionService.getLastChatSessionsByAssistantIdAndAuthorId(assistantId, authorId);
-//            if (chatSessionDTO.isPresent()) {
-//                return ResponseEntity.status(201).body(chatSessionDTO.get().id());
-//            }
-//        }
     }
 
     private record IdDTO(UUID id) {
